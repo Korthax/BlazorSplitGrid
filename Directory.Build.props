@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)/.artifacts/$(Configuration)</PackageOutputPath>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <Version>1.0.0</Version>
+        <Authors>Stephen Phillips</Authors>
+    </PropertyGroup>
+</Project>

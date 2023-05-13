@@ -1,0 +1,9 @@
+.split-grid-gutter-column {
+    grid-row: 1/-1;
+    cursor: col-resize;
+}
+
+.split-grid-gutter-row {
+    grid-column: 1/-1;
+    cursor: row-resize;
+}

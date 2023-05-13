@@ -1,0 +1,7 @@
+﻿@inject IJSRuntime JsRuntime
+
+<div @ref="Element" class="split-grid">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
