@@ -1,3 +1,4 @@
+using BlazorSplitGrid.Elements;
 using BlazorSplitGrid.Extensions;
 using BlazorSplitGrid.Models;
 using Microsoft.AspNetCore.Components;
@@ -10,10 +11,10 @@ public partial class SplitGrid : ComponentBase
     public EventCallback? OnDrag { get; set; }
 
     [Parameter]
-    public EventCallback<DragEventArgs>? OnDragStart { get; set; }
+    public EventCallback<DragEventArgs> OnDragStart { get; set; }
 
     [Parameter]
-    public EventCallback<DragEventArgs>? OnDragStop { get; set; }
+    public EventCallback<DragEventArgs> OnDragStop { get; set; }
 
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
@@ -81,12 +82,28 @@ public partial class SplitGrid : ComponentBase
     [Parameter] 
     public string? RowCursor { get; set; }
 
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
     public ElementReference Element { get; set; }
-    public bool Initialised { get; set; }
+    
+    public string Classes => AttributeBuilder.New()
+        .Append("split-grid")
+        .Append(Class)
+        .Build();
+
+    public string Styles => AttributeBuilder.New()
+        .Append(Style)
+        .Build();
 
     private readonly Dictionary<string, GutterItem> _columns = new();
     private readonly Dictionary<string, GutterItem> _rows = new();
+
     private SplitGridInterop? _splitGrid;
+    private bool _initialised;
 
     protected override Task OnInitializedAsync()
     {
@@ -118,16 +135,16 @@ public partial class SplitGrid : ComponentBase
                 ColumnCursor = ColumnCursor,
                 RowCursor = RowCursor,
                 HasOnDrag = OnDrag is not null,
-                HasOnDragStart = OnDragStart is not null,
-                HasOnDragStop = OnDragStop is not null
+                HasOnDragStart = OnDragStart.HasDelegate,
+                HasOnDragStop = OnDragStop.HasDelegate
             };
 
             await _splitGrid.Initialise(_rows.Values, _columns.Values, options);
             _splitGrid.OnDrag += (_, args) => OnDrag?.InvokeAsync(args);
-            _splitGrid.OnDragStart += (_, args) => OnDragStart?.InvokeAsync(args);
-            _splitGrid.OnDragStop += (_, args) => OnDragStop?.InvokeAsync(args);
+            _splitGrid.OnDragStart += (_, args) => OnDragStart.InvokeAsync(args);
+            _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
 
-            Initialised = true;
+            _initialised = true;
         }
     }
 

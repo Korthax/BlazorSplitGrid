@@ -102,6 +102,7 @@ function BuildStyles(rows, columns) {
 
     cssBuilder.push('.split-grid {');
     cssBuilder.push('\tdisplay: grid;');
+    cssBuilder.push('\theight: 100%;');
     if(rows.length > 0) {
         let template = "1fr ";
         for (let i = 0 ; i < rows.length; i++) {

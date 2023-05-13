@@ -1,12 +1,28 @@
-﻿<SplitGrid SnapOffset="0" DragInterval="1" MaxSize="850">
-    <SplitGridContent Style="background-color: red">@Content</SplitGridContent>
-    <SplitGridColumn />
-    <SplitGridContent Style="background-color: green">@Content</SplitGridContent>
-    <SplitGridContent Style="background-color: blue">@Content</SplitGridContent>
-    <SplitGridRow />
-    <SplitGridContent Style="background-color: yellow">@Content</SplitGridContent>
-</SplitGrid>
+﻿@using DragEventArgs = BlazorSplitGrid.Models.DragEventArgs
+
+<div style="height: 1000px">
+    <SplitGrid SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop" OnDragStart="@OnDragStart">
+        <SplitGridContent Style="background-color: red"></SplitGridContent>
+        <SplitGridColumn />
+        <SplitGridContent Style="background-color: green"></SplitGridContent>
+        <SplitGridContent Style="background-color: blue"></SplitGridContent>
+        <SplitGridRow />
+        <SplitGridContent Style="background-color: yellow"></SplitGridContent>
+    </SplitGrid>
+</div>
 
 @code {
     private const string Content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    
+    private Task OnDragStop(DragEventArgs eventArgs)
+    {
+        Console.WriteLine($"{nameof(OnDragStop)}: [{eventArgs.Direction}] {eventArgs.Track}");
+        return Task.CompletedTask;
+    }
+
+    private Task OnDragStart(DragEventArgs eventArgs)
+    {
+        Console.WriteLine($"{nameof(OnDragStart)}: [{eventArgs.Direction}] {eventArgs.Track}");
+        return Task.CompletedTask;
+    }
 }
