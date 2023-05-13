@@ -6,8 +6,6 @@ public class SplitGridOptions
 {
     public int? MinSize { get; set; }
     public int? MaxSize { get; set; }
-    public Dictionary<int, int>? MinSizes { get; set; }
-    public Dictionary<int, int>? MaxSizes { get; set; }
     public int? ColumnMinSize { get; set; }
     public int? ColumnMaxSize { get; set; }
     public Dictionary<int, int>? ColumnMinSizes { get; set; }
@@ -37,8 +35,6 @@ public class SplitGridOptions
             .AddIfNotNull("hasOnDragStop", HasOnDragStop)
             .AddIfNotNull("minSize", MinSize)
             .AddIfNotNull("maxSize", MaxSize)
-            .AddIfNotNull("minSizes", MinSizes)
-            .AddIfNotNull("maxSizes", MaxSizes)
             .AddIfNotNull("columnMinSize", ColumnMinSize)
             .AddIfNotNull("columnMaxSize", ColumnMaxSize)
             .AddIfNotNull("columnMinSizes", ColumnMinSizes)

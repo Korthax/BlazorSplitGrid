@@ -18,67 +18,61 @@ public partial class SplitGrid : ComponentBase
 
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
-    
+
     [Parameter] 
     public int? MinSize { get; set; }
-    
-    [Parameter] 
-    public Dictionary<int, int>? MinSizes { get; set; }
 
     [Parameter] 
     public int? MaxSize { get; set; }
-    
-    [Parameter] 
-    public Dictionary<int, int>? MaxSizes { get; set; }
 
     [Parameter] 
     public int? ColumnMinSize { get; set; }
-    
+
     [Parameter] 
     public int? ColumnMaxSize { get; set; }
-    
+
     [Parameter] 
-    public Dictionary<int, int>? ColumnMinSizes { get; set; }
-    
+    public Dictionary<int, int>? ColumnMinSizes { get; set; } = new();
+
     [Parameter] 
-    public Dictionary<int, int>? ColumnMaxSizes { get; set; }
-    
+    public Dictionary<int, int>? ColumnMaxSizes { get; set; } = new();
+
     [Parameter] 
     public int? RowMinSize { get; set; }
-    
+
     [Parameter] 
     public int? RowMaxSize { get; set; }
-    
+
     [Parameter] 
-    public Dictionary<int, int>? RowMinSizes { get; set; }
-    
-    [Parameter] 
-    public Dictionary<int, int>? RowMaxSizes { get; set; }
-    
+    public Dictionary<int, int>? RowMinSizes { get; set; } = new();
+
+    [Parameter]
+    public Dictionary<int, int>? RowMaxSizes { get; set; } = new();
+
     [Parameter] 
     public int? SnapOffset { get; set; }
-    
+
     [Parameter] 
     public int? ColumnSnapOffset { get; set; }
-    
+
     [Parameter] 
     public int? RowSnapOffset { get; set; }
-    
+
     [Parameter] 
     public int? DragInterval { get; set; }
     
     [Parameter] 
     public int? ColumnDragInterval { get; set; }
-    
+
     [Parameter] 
     public int? RowDragInterval { get; set; }
-    
+
     [Parameter] 
     public string? Cursor { get; set; }
-    
+
     [Parameter] 
     public string? ColumnCursor { get; set; }
-    
+
     [Parameter] 
     public string? RowCursor { get; set; }
 
@@ -122,8 +116,12 @@ public partial class SplitGrid : ComponentBase
                 MaxSize = MaxSize,
                 ColumnMinSize = ColumnMinSize,
                 ColumnMaxSize = ColumnMaxSize,
+                ColumnMinSizes = ColumnMinSizes,
+                ColumnMaxSizes = ColumnMaxSizes,
                 RowMinSize = RowMinSize,
                 RowMaxSize = RowMaxSize,
+                RowMinSizes = RowMinSizes,
+                RowMaxSizes = RowMaxSizes,
                 SnapOffset = SnapOffset,
                 ColumnSnapOffset = ColumnSnapOffset,
                 RowSnapOffset = RowSnapOffset,
@@ -150,13 +148,29 @@ public partial class SplitGrid : ComponentBase
         await InvokeAsync(StateHasChanged);
     }
 
-    internal GutterItem AddRow(string selector)
+    internal GutterItem AddRow(SplitGridGutter gutter)
     {
-        return _rows[selector] = new GutterItem(selector, _rows.NextTrack());
+        var gutterItem = new GutterItem(gutter.Id, _rows.NextTrack());
+
+        if (gutter.MinSize.HasValue && RowMinSizes is not null)
+            RowMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+
+        if (gutter.MaxSize.HasValue && RowMaxSizes is not null)
+            RowMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+
+        return _rows[gutter.Id] = gutterItem;
     }
 
-    internal GutterItem AddColumn(string selector)
+    internal GutterItem AddColumn(SplitGridGutter gutter)
     {
-        return _columns[selector] = new GutterItem(selector, _columns.NextTrack());
+        var gutterItem = new GutterItem(gutter.Id, _columns.NextTrack());
+
+        if (gutter.MinSize.HasValue && ColumnMinSizes is not null)
+            ColumnMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+
+        if (gutter.MaxSize.HasValue && ColumnMaxSizes is not null)
+            ColumnMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+
+        return _columns[gutter.Id] = gutterItem;
     }
 }

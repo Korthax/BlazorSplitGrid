@@ -17,6 +17,14 @@ public abstract class SplitGridGutter : ComponentBase
     [Parameter]
     public string? Style { get; set; }
 
+    [Parameter]
+    public int? MinSize { get; set; }
+
+    [Parameter]
+    public int? MaxSize { get; set; }
+
+    public string Id { get; }
+
     private string Classes => AttributeBuilder.New()
         .Append("split-grid-gutter")
         .Append($"split-grid-gutter-{_direction.ToClassName()}")
@@ -25,18 +33,17 @@ public abstract class SplitGridGutter : ComponentBase
         .Build();
 
     private readonly Direction _direction;
-    private readonly string _id;
     private GutterItem? _item;
 
     protected SplitGridGutter(Direction direction)
     {
         _direction = direction;
-        _id = $"split-grid-gutter-{Guid.NewGuid().ToString()}";
+        Id = $"split-grid-gutter-{Guid.NewGuid().ToString()}";
     }
 
     protected override void OnInitialized()
     {
-        _item = _direction == Direction.Row ? SplitGrid.AddRow(_id) : SplitGrid.AddColumn(_id);
+        _item = _direction == Direction.Row ? SplitGrid.AddRow(this) : SplitGrid.AddColumn(this);
     }
 
     public async Task Refresh()
@@ -47,7 +54,7 @@ public abstract class SplitGridGutter : ComponentBase
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "id", _id);
+        builder.AddAttribute(1, "id", Id);
         builder.AddAttribute(2, "class", Classes);
         builder.AddAttribute(3, "style", Style);
         builder.CloseElement();
