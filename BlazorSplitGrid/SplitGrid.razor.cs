@@ -8,7 +8,7 @@ namespace BlazorSplitGrid;
 public partial class SplitGrid : ComponentBase
 {
     [Parameter]
-    public EventCallback? OnDrag { get; set; }
+    public EventCallback<DragEventArgs> OnDrag { get; set; }
 
     [Parameter]
     public EventCallback<DragEventArgs> OnDragStart { get; set; }
@@ -89,7 +89,7 @@ public partial class SplitGrid : ComponentBase
     public string? Style { get; set; }
 
     public ElementReference Element { get; set; }
-    
+
     public string Classes => AttributeBuilder.New()
         .Append("split-grid")
         .Append(Class)
@@ -103,7 +103,6 @@ public partial class SplitGrid : ComponentBase
     private readonly Dictionary<string, GutterItem> _rows = new();
 
     private SplitGridInterop? _splitGrid;
-    private bool _initialised;
 
     protected override Task OnInitializedAsync()
     {
@@ -134,17 +133,15 @@ public partial class SplitGrid : ComponentBase
                 Cursor = Cursor,
                 ColumnCursor = ColumnCursor,
                 RowCursor = RowCursor,
-                HasOnDrag = OnDrag is not null,
+                HasOnDrag = OnDrag.HasDelegate,
                 HasOnDragStart = OnDragStart.HasDelegate,
                 HasOnDragStop = OnDragStop.HasDelegate
             };
 
             await _splitGrid.Initialise(_rows.Values, _columns.Values, options);
-            _splitGrid.OnDrag += (_, args) => OnDrag?.InvokeAsync(args);
+            _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
             _splitGrid.OnDragStart += (_, args) => OnDragStart.InvokeAsync(args);
             _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
-
-            _initialised = true;
         }
     }
 

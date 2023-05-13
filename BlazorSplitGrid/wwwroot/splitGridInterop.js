@@ -39,8 +39,6 @@ export function initSplitGrid(rows, columns, options, interopReference) {
             element: document.getElementById(x.id)
         }
     });
-    
-    console.log(options);
 
     const split = window.Split(options);
 

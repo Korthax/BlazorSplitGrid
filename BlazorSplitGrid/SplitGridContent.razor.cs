@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components.Rendering;
 
 namespace BlazorSplitGrid;
 
-public partial class SplitGridContent : ComponentBase
+public class SplitGridContent : ComponentBase
 {
     [CascadingParameter]
     public SplitGrid SplitGrid { get; set; } = null!;
