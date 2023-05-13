@@ -7,5 +7,20 @@
     <PropertyGroup>
         <Version>1.0.0</Version>
         <Authors>Stephen Phillips</Authors>
+        <Copyright>Stephen Phillips</Copyright>
+        <Description>
+            SplitGrid wrapper for Blazor.
+            See https://github.com/nathancahill/split/tree/master/packages/split-grid
+        </Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Korthax/BlazorSplitGrid</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Korthax/BlazorSplitGrid</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Blazor, split-grid</PackageTags>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" Visible="false" PackagePath="" />
+    </ItemGroup>
+
 </Project>

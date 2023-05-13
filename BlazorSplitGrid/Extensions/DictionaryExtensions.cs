@@ -9,7 +9,7 @@ internal static class DictionaryExtensions
     {
         return self.Count * 2 + 1;
     }
-    
+
     internal static Dictionary<string, object> AddIfNotNull<T>(this Dictionary<string, object> self, string key, T? value) where T : IDictionary
     {
         if (value is null || value.Count == 0)
