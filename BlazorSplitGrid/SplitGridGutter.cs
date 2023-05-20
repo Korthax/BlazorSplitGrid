@@ -24,7 +24,7 @@ public class SplitGridGutter : ComponentBase
     public int? MaxSize { get; set; }
 
     [Parameter]
-    public Direction Direction { get; init; }
+    public Direction Direction { get; set; }
 
     public string Id { get; }
 
