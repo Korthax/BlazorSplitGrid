@@ -154,6 +154,46 @@ public partial class SplitGrid : ComponentBase
         await InvokeAsync(StateHasChanged);
     }
 
+    public async Task AddColumnGutter(string id, int track)
+    {
+        if (_splitGrid is null)
+            return;
+
+        await _splitGrid.AddColumnGutter(id, track);
+    }
+
+    public async Task AddRowGutter(string id, int track)
+    {
+        if (_splitGrid is null)
+            return;
+
+        await _splitGrid.AddRowGutter(id, track);
+    }
+
+    public async Task RemoveColumnGutter(string id, int track, bool immediate = true)
+    {
+        if (_splitGrid is null)
+            return;
+
+        await _splitGrid.RemoveColumnGutter(id, track, immediate);
+    }
+
+    public async Task RemoveRowGutter(string id, int track, bool immediate = true)
+    {
+        if (_splitGrid is null)
+            return;
+
+        await _splitGrid.RemoveRowGutter(id, track, immediate);
+    }
+
+    public async Task RemoveRowGutter(bool immediate = true)
+    {
+        if (_splitGrid is null)
+            return;
+
+        await _splitGrid.RemoveRowGutter(immediate);
+    }
+
     internal GutterItem AddRow(SplitGridGutter gutter)
     {
         var gutterItem = new GutterItem(gutter.Id, _rows.NextTrack());
