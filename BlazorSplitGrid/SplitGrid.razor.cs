@@ -108,39 +108,45 @@ public partial class SplitGrid : ComponentBase
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (firstRender && _splitGrid is not null)
-        {
-            var options = new SplitGridOptions
-            {
-                MinSize = MinSize,
-                MaxSize = MaxSize,
-                ColumnMinSize = ColumnMinSize,
-                ColumnMaxSize = ColumnMaxSize,
-                ColumnMinSizes = ColumnMinSizes,
-                ColumnMaxSizes = ColumnMaxSizes,
-                RowMinSize = RowMinSize,
-                RowMaxSize = RowMaxSize,
-                RowMinSizes = RowMinSizes,
-                RowMaxSizes = RowMaxSizes,
-                SnapOffset = SnapOffset,
-                ColumnSnapOffset = ColumnSnapOffset,
-                RowSnapOffset = RowSnapOffset,
-                DragInterval = DragInterval,
-                RowDragInterval = RowDragInterval,
-                ColumnDragInterval = ColumnDragInterval,
-                Cursor = Cursor,
-                ColumnCursor = ColumnCursor,
-                RowCursor = RowCursor,
-                HasOnDrag = OnDrag.HasDelegate,
-                HasOnDragStart = OnDragStart.HasDelegate,
-                HasOnDragStop = OnDragStop.HasDelegate
-            };
+        if (firstRender)
+            await Initialise();
+    }
 
-            await _splitGrid.Initialise(_rows.Values, _columns.Values, options);
-            _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
-            _splitGrid.OnDragStart += (_, args) => OnDragStart.InvokeAsync(args);
-            _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
-        }
+    public async Task Initialise()
+    {
+        if (_splitGrid is null)
+            return;
+
+        var options = new SplitGridOptions
+        {
+            MinSize = MinSize,
+            MaxSize = MaxSize,
+            ColumnMinSize = ColumnMinSize,
+            ColumnMaxSize = ColumnMaxSize,
+            ColumnMinSizes = ColumnMinSizes,
+            ColumnMaxSizes = ColumnMaxSizes,
+            RowMinSize = RowMinSize,
+            RowMaxSize = RowMaxSize,
+            RowMinSizes = RowMinSizes,
+            RowMaxSizes = RowMaxSizes,
+            SnapOffset = SnapOffset,
+            ColumnSnapOffset = ColumnSnapOffset,
+            RowSnapOffset = RowSnapOffset,
+            DragInterval = DragInterval,
+            RowDragInterval = RowDragInterval,
+            ColumnDragInterval = ColumnDragInterval,
+            Cursor = Cursor,
+            ColumnCursor = ColumnCursor,
+            RowCursor = RowCursor,
+            HasOnDrag = OnDrag.HasDelegate,
+            HasOnDragStart = OnDragStart.HasDelegate,
+            HasOnDragStop = OnDragStop.HasDelegate
+        };
+
+        await _splitGrid.Initialise(_rows.Values, _columns.Values, options);
+        _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
+        _splitGrid.OnDragStart += (_, args) => OnDragStart.InvokeAsync(args);
+        _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
     }
 
     public async Task Refresh()
@@ -152,11 +158,17 @@ public partial class SplitGrid : ComponentBase
     {
         var gutterItem = new GutterItem(gutter.Id, _rows.NextTrack());
 
-        if (gutter.MinSize.HasValue && RowMinSizes is not null)
+        if (gutter.MinSize.HasValue)
+        {
+            RowMinSizes ??= new Dictionary<int, int>();
             RowMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+        }
 
-        if (gutter.MaxSize.HasValue && RowMaxSizes is not null)
+        if (gutter.MaxSize.HasValue)
+        {
+            RowMaxSizes ??= new Dictionary<int, int>();
             RowMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+        }
 
         return _rows[gutter.Id] = gutterItem;
     }
@@ -165,11 +177,17 @@ public partial class SplitGrid : ComponentBase
     {
         var gutterItem = new GutterItem(gutter.Id, _columns.NextTrack());
 
-        if (gutter.MinSize.HasValue && ColumnMinSizes is not null)
+        if (gutter.MinSize.HasValue)
+        {
+            ColumnMinSizes ??= new Dictionary<int, int>();
             ColumnMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+        }
 
-        if (gutter.MaxSize.HasValue && ColumnMaxSizes is not null)
+        if (gutter.MaxSize.HasValue)
+        {
+            ColumnMaxSizes ??= new Dictionary<int, int>();
             ColumnMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+        }
 
         return _columns[gutter.Id] = gutterItem;
     }

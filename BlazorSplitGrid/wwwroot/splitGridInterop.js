@@ -119,7 +119,7 @@ function BuildStyles(rows, columns) {
         cssBuilder.push(`\tgrid-template-columns: ${template};`);
     }
     cssBuilder.push('}');
-    
+
     for (let row of rows) {
         const track = row.track;
         cssBuilder.push(`.split-grid-gutter-row-${track} { grid-row: ${track + 1}; }`);

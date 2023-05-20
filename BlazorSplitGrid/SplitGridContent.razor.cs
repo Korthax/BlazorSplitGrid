@@ -10,6 +10,9 @@ public class SplitGridContent : ComponentBase
     public SplitGrid SplitGrid { get; set; } = null!;
 
     [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
     public string? Class { get; set; }
 
     [Parameter]
@@ -26,6 +29,11 @@ public class SplitGridContent : ComponentBase
     public string Styles => AttributeBuilder.New()
         .Append(Style)
         .Build();
+
+    public SplitGridContent()
+    {
+        Id = $"split-grid-content-{Guid.NewGuid().ToString()}";
+    }
 
     public async Task Refresh()
     {

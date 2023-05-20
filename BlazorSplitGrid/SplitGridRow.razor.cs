@@ -4,7 +4,8 @@ namespace BlazorSplitGrid;
 
 public class SplitGridRow : SplitGridGutter
 {
-    public SplitGridRow() : base(Direction.Row)
+    public SplitGridRow()
     {
+        Direction = Direction.Row;
     }
 }
