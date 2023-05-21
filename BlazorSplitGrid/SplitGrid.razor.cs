@@ -8,6 +8,9 @@ namespace BlazorSplitGrid;
 public partial class SplitGrid : ComponentBase
 {
     [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
     public EventCallback<DragEventArgs> OnDrag { get; set; }
 
     [Parameter]
@@ -84,8 +87,11 @@ public partial class SplitGrid : ComponentBase
 
     public ElementReference Element { get; set; }
 
+    public string SplitGridId { get; }
+
     public string Classes => AttributeBuilder.New()
         .Append("split-grid")
+        .Append(SplitGridId)
         .Append(Class)
         .Build();
 
@@ -97,6 +103,11 @@ public partial class SplitGrid : ComponentBase
     private readonly Dictionary<string, GutterItem> _rows = new();
 
     private SplitGridInterop? _splitGrid;
+
+    public SplitGrid()
+    {
+        SplitGridId = $"split-grid-{Guid.NewGuid().ToString()}";
+    }
 
     protected override Task OnInitializedAsync()
     {
@@ -154,49 +165,49 @@ public partial class SplitGrid : ComponentBase
         await InvokeAsync(StateHasChanged);
     }
 
-    public async Task AddColumnGutter(string id, int track)
+    public async Task AddColumnGutter(string querySelector, int track)
     {
         if (_splitGrid is null)
             return;
 
-        await _splitGrid.AddColumnGutter(id, track);
+        await _splitGrid.AddColumnGutter(querySelector, track);
     }
 
-    public async Task AddRowGutter(string id, int track)
+    public async Task AddRowGutter(string querySelector, int track)
     {
         if (_splitGrid is null)
             return;
 
-        await _splitGrid.AddRowGutter(id, track);
+        await _splitGrid.AddRowGutter(querySelector, track);
     }
 
-    public async Task RemoveColumnGutter(string id, int track, bool immediate = true)
+    public async Task RemoveColumnGutter(string querySelector, int track, bool immediate = true)
     {
         if (_splitGrid is null)
             return;
 
-        await _splitGrid.RemoveColumnGutter(id, track, immediate);
+        await _splitGrid.RemoveColumnGutter(querySelector, track, immediate);
     }
 
-    public async Task RemoveRowGutter(string id, int track, bool immediate = true)
+    public async Task RemoveRowGutter(string querySelector, int track, bool immediate = true)
     {
         if (_splitGrid is null)
             return;
 
-        await _splitGrid.RemoveRowGutter(id, track, immediate);
+        await _splitGrid.RemoveRowGutter(querySelector, track, immediate);
     }
 
-    public async Task RemoveRowGutter(bool immediate = true)
+    public async Task Destroy(bool immediate = true)
     {
         if (_splitGrid is null)
             return;
 
-        await _splitGrid.RemoveRowGutter(immediate);
+        await _splitGrid.Destroy(immediate);
     }
 
     internal GutterItem AddRow(SplitGridGutter gutter)
     {
-        var gutterItem = new GutterItem(gutter.Id, _rows.NextTrack());
+        var gutterItem = new GutterItem(gutter.SplitGridId, _rows.NextTrack());
 
         if (gutter.MinSize.HasValue)
         {
@@ -210,12 +221,12 @@ public partial class SplitGrid : ComponentBase
             RowMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
         }
 
-        return _rows[gutter.Id] = gutterItem;
+        return _rows[gutter.SplitGridId] = gutterItem;
     }
 
     internal GutterItem AddColumn(SplitGridGutter gutter)
     {
-        var gutterItem = new GutterItem(gutter.Id, _columns.NextTrack());
+        var gutterItem = new GutterItem(gutter.SplitGridId, _columns.NextTrack());
 
         if (gutter.MinSize.HasValue)
         {
@@ -229,6 +240,6 @@ public partial class SplitGrid : ComponentBase
             ColumnMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
         }
 
-        return _columns[gutter.Id] = gutterItem;
+        return _columns[gutter.SplitGridId] = gutterItem;
     }
 }

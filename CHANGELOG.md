@@ -1,7 +1,7 @@
 # Changelog
 
-## v1.1.1
-- Direction is now settable in the gutter component
+## v1.2.0
+- Use class for selector rather than id
 
 ## v1.1.0
 - You can now use the gutter component directly

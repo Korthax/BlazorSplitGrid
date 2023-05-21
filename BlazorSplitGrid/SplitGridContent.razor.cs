@@ -10,7 +10,7 @@ public class SplitGridContent : ComponentBase
     public SplitGrid SplitGrid { get; set; } = null!;
 
     [Parameter]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [Parameter]
     public string? Class { get; set; }
@@ -21,7 +21,10 @@ public class SplitGridContent : ComponentBase
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
 
+    public string SplitGridId { get; }
+
     public string Classes => AttributeBuilder.New()
+        .Append(SplitGridId)
         .Append("split-grid-content")
         .Append(Class)
         .Build();
@@ -32,7 +35,7 @@ public class SplitGridContent : ComponentBase
 
     public SplitGridContent()
     {
-        Id = $"split-grid-content-{Guid.NewGuid().ToString()}";
+        SplitGridId = $"split-grid-content-{Guid.NewGuid().ToString()}";
     }
 
     public async Task Refresh()
@@ -42,10 +45,15 @@ public class SplitGridContent : ComponentBase
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "class", Classes);
-        builder.AddAttribute(2, "style", Styles);
-        builder.AddContent(3, ChildContent);
+        var sequence = 0;
+        builder.OpenElement(sequence++, "div");
+
+        if (!string.IsNullOrWhiteSpace(Id))
+            builder.AddAttribute(sequence++, "id", Id);
+
+        builder.AddAttribute(sequence++, "class", Classes);
+        builder.AddAttribute(sequence++, "style", Styles);
+        builder.AddContent(sequence, ChildContent);
         builder.CloseElement();
     }
 }

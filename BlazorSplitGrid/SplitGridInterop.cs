@@ -35,39 +35,39 @@ internal class SplitGridInterop : IAsyncDisposable
         }
     }
 
-    public async Task AddColumnGutter(string id, int track)
+    public async Task AddColumnGutter(string querySelector, int track)
     {
         if (_gridInstance is null)
             return;
 
-        await _gridInstance!.InvokeVoidAsync("addColumnGutterById", id, track);
+        await _gridInstance!.InvokeVoidAsync("addColumnGutterByQuerySelector", querySelector, track);
     }
 
-    public async Task AddRowGutter(string id, int track)
+    public async Task AddRowGutter(string querySelector, int track)
     {
         if (_gridInstance is null)
             return;
 
-        await _gridInstance!.InvokeVoidAsync("addRowGutterById", id, track);
+        await _gridInstance!.InvokeVoidAsync("addRowGutterByQuerySelector", querySelector, track);
     }
 
-    public async Task RemoveColumnGutter(string id, int track, bool immediate = true)
+    public async Task RemoveColumnGutter(string querySelector, int track, bool immediate = true)
     {
         if (_gridInstance is null)
             return;
 
-        await _gridInstance!.InvokeVoidAsync("removeColumnGutterById", id, track, immediate);
+        await _gridInstance!.InvokeVoidAsync("removeColumnGutterByQuerySelector", querySelector, track, immediate);
     }
 
-    public async Task RemoveRowGutter(string id, int track, bool immediate = true)
+    public async Task RemoveRowGutter(string querySelector, int track, bool immediate = true)
     {
         if (_gridInstance is null)
             return;
 
-        await _gridInstance!.InvokeVoidAsync("removeRowGutterById", id, track, immediate);
+        await _gridInstance!.InvokeVoidAsync("removeRowGutterByQuerySelector", querySelector, track, immediate);
     }
 
-    public async Task RemoveRowGutter(bool immediate = true)
+    public async Task Destroy(bool immediate = true)
     {
         if (_gridInstance is null)
             return;

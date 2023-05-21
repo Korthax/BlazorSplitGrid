@@ -29,47 +29,47 @@ export function initSplitGrid(rows, columns, options, interopReference) {
     options.columnGutters = columns.map(x => {
         return {
             track: x.track,
-            element: document.getElementById(x.id)
+            element: document.querySelector(`.${x.id}`)
         }
     });
 
     options.rowGutters = rows.map(x => {
         return {
             track: x.track,
-            element: document.getElementById(x.id)
+            element: document.querySelector(`.${x.id}`)
         }
     });
 
     const split = window.Split(options);
 
-    split.addColumnGutterById = (id, track) =>
+    split.addColumnGutterByQuerySelector = (selector, track) =>
     {
         const style = document.getElementById(splitGridStyleId);
         if (!style.innerHTML.includes(`.split-grid-gutter-column-${track}`)) {
             style.innerHTML += `\n.split-grid-gutter-column-${track} { grid-column: ${track + 1}; }`;
         }
 
-        split.addColumnGutter(document.getElementById(id), track);
+        split.addColumnGutter(document.querySelector(selector), track);
     };
 
-    split.addRowGutterById = (id, track) =>
+    split.addRowGutterByQuerySelector = (selector, track) =>
     {
         const style = document.getElementById(splitGridStyleId);
         if (!style.innerHTML.includes(`.split-grid-gutter-row-${track}`)) {
             style.innerHTML += `\n.split-grid-gutter-row-${track} { grid-row: ${track + 1}; }`;
         }
 
-        split.addRowGutter(document.getElementById(id), track);
+        split.addRowGutter(document.querySelector(selector), track);
     };
 
-    split.removeColumnGutterById = (id, track, immediate = true) =>
+    split.removeColumnGutterByQuerySelector = (selector, track, immediate = true) =>
     {
-        split.removeColumnGutter(document.getElementById(id), track, immediate);
+        split.removeColumnGutter(document.querySelector(selector), track, immediate);
     };
 
-    split.removeRowGutterById = (id, track, immediate = true) =>
+    split.removeRowGutterByQuerySelector = (selector, track, immediate = true) =>
     {
-        split.removeRowGutter(document.getElementById(id), track, immediate);
+        split.removeRowGutter(document.querySelector(selector), track, immediate);
     };
 
     return split;

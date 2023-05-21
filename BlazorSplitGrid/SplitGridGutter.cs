@@ -26,11 +26,15 @@ public class SplitGridGutter : ComponentBase
     [Parameter]
     public Direction Direction { get; set; }
 
-    public string Id { get; }
+    [Parameter]
+    public string? Id { get; set; }
+
+    public string SplitGridId { get; }
 
     private string Classes => AttributeBuilder.New()
         .Append("split-grid-gutter")
         .Append($"split-grid-gutter-{Direction.ToClassName()}")
+        .Append(SplitGridId)
         .ConditionalAppend(() => _item is not null, $"split-grid-gutter-{Direction.ToClassName()}-{_item!.Track}")
         .Append(Class)
         .Build();
@@ -39,7 +43,7 @@ public class SplitGridGutter : ComponentBase
 
     protected SplitGridGutter()
     {
-        Id = $"split-grid-gutter-{Guid.NewGuid().ToString()}";
+        SplitGridId = $"split-grid-gutter-{Guid.NewGuid().ToString()}";
     }
 
     protected override void OnInitialized()
@@ -54,10 +58,14 @@ public class SplitGridGutter : ComponentBase
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
-        builder.OpenElement(0, "div");
-        builder.AddAttribute(1, "id", Id);
-        builder.AddAttribute(2, "class", Classes);
-        builder.AddAttribute(3, "style", Style);
+        var sequence = 0;
+        builder.OpenElement(sequence++, "div");
+
+        if (!string.IsNullOrWhiteSpace(Id))
+            builder.AddAttribute(sequence++, "id", Id);
+
+        builder.AddAttribute(sequence++, "class", Classes);
+        builder.AddAttribute(sequence, "style", Style);
         builder.CloseElement();
     }
 }
