@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.2.0
+## v1.3.0
 - Extract out base component
 - Cleared up example of using multiple rows and columns
 
