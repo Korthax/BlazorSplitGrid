@@ -16,7 +16,7 @@ public class DictionaryExtensionsTests
     {
         var dictionary = new Dictionary<string, GutterItem>();
         for (var i = 0; i < itemCount; i++)
-            dictionary.Add($"{i}", new GutterItem("id", 0));
+            dictionary.Add($"{i}", new GutterItem("id", 0, 10));
 
         var result = dictionary.NextTrack();
         result.Should().Be(expectedNextTrack);

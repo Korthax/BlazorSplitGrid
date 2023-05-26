@@ -34,8 +34,8 @@ Blazor Split Grid will automatically generate the track number and classes for y
     <SplitGridContent></SplitGridContent>
     <SplitGridColumn />
     <SplitGridContent></SplitGridContent>
-    <SplitGridContent></SplitGridContent>
     <SplitGridRow />
+    <SplitGridContent></SplitGridContent>
     <SplitGridContent></SplitGridContent>
 </SplitGrid>
 ```

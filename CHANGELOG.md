@@ -1,6 +1,10 @@
 # Changelog
 
 ## v1.2.0
+- Extract out base component
+- Cleared up example of using multiple rows and columns
+
+## v1.2.0
 - Use class for selector rather than id
 
 ## v1.1.0
