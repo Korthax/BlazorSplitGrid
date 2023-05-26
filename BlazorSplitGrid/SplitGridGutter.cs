@@ -44,7 +44,7 @@ public class SplitGridGutter : SplitGridComponentBase
             builder.AddAttribute(sequence++, "id", Id);
 
         builder.AddAttribute(sequence++, "class", Classes);
-        builder.AddAttribute(sequence, "style", Style);
+        builder.AddAttribute(sequence, "style", Styles);
         builder.CloseElement();
     }
 }

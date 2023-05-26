@@ -13,21 +13,20 @@ public class SplitGridContent : SplitGridComponentBase
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
 
+    public int Row => _position?.Row ?? 0;
+    public int Column => _position?.Column ?? 0;
+
     private GridPosition? _position;
 
     protected override string Classes => ClassBuilder
         .Append("split-grid-content")
-        .ConditionalAppend(() => _position is not null, $"split-grid-content-{_position!.Row}-{_position!.Column}")
+        .ConditionalAppend(() => _position is not null, $"split-grid-content-row-{_position!.Row}")
+        .ConditionalAppend(() => _position is not null, $"split-grid-content-column-{_position!.Column}")
         .Build();
-
-    public async Task SetSize(int size)
-    {
-        await InvokeAsync(StateHasChanged);
-    }
 
     protected override void OnInitialized()
     {
-        _position = SplitGrid.AddContent(this);
+        _position = SplitGrid.AddContent();
     }
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)

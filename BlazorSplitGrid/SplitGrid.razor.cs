@@ -86,8 +86,8 @@ public partial class SplitGrid : SplitGridComponentBase
     private readonly Dictionary<string, GutterItem> _rows = new();
 
     private int _currentColumn;
+    private int _columnCount;
     private int _currentRow;
-    private bool _newRow;
 
     private SplitGridInterop? _splitGrid;
 
@@ -198,8 +198,7 @@ public partial class SplitGrid : SplitGridComponentBase
             RowMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
         }
 
-        _newRow = false;
-        _currentColumn++;
+        _currentRow++;
         return _rows[gutter.SplitGridId] = gutterItem;
     }
 
@@ -219,21 +218,16 @@ public partial class SplitGrid : SplitGridComponentBase
             ColumnMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
         }
 
-        _newRow = false;
-        _currentColumn++;
+        _columnCount++;
         return _columns[gutter.SplitGridId] = gutterItem;
     }
 
-    public GridPosition AddContent(SplitGridContent splitGridContent)
+    public GridPosition AddContent()
     {
-        if (_newRow)
-        {
-            _currentRow++;
+        if (_currentColumn > _columnCount)
             _currentColumn = 0;
-        }
 
-        var gridPosition = new GridPosition(_currentRow, _currentColumn);
-        _newRow = true;
+        var gridPosition = new GridPosition(_currentRow * 2,  _currentColumn++ * 2);
         return gridPosition;
     }
 }
