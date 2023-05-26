@@ -104,7 +104,7 @@ function BuildStyles(rows, columns) {
     if(rows.length > 0) {
         let template = "1fr ";
         for (let i = 0 ; i < rows.length; i++) {
-            template += "10px 1fr ";
+            template += `${rows[i].size}px 1fr `;
         }
 
         cssBuilder.push(`\tgrid-template-rows: ${template};`);
@@ -113,7 +113,7 @@ function BuildStyles(rows, columns) {
     if(columns.length > 0) {
         let template = "1fr ";
         for (let i = 0 ; i < columns.length; i++) {
-            template += "10px 1fr ";
+            template += `${columns[i].size}px 1fr `;
         }
 
         cssBuilder.push(`\tgrid-template-columns: ${template};`);

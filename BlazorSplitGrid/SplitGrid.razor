@@ -1,6 +1,7 @@
-﻿@inject IJSRuntime JsRuntime
+﻿@inherits SplitGridComponentBase
+@inject IJSRuntime JsRuntime
 
-<div @ref="Element" class="@Classes" style="@Style" id="@Id">
+<div @ref="Element" class="@Classes" style="@Styles" id="@Id">
     <CascadingValue Value="this">
         @ChildContent
     </CascadingValue>

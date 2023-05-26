@@ -5,11 +5,8 @@ using Microsoft.AspNetCore.Components;
 
 namespace BlazorSplitGrid;
 
-public partial class SplitGrid : ComponentBase
+public partial class SplitGrid : SplitGridComponentBase
 {
-    [Parameter]
-    public string? Id { get; set; }
-
     [Parameter]
     public EventCallback<DragEventArgs> OnDrag { get; set; }
 
@@ -79,35 +76,20 @@ public partial class SplitGrid : ComponentBase
     [Parameter] 
     public string? RowCursor { get; set; }
 
-    [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter]
-    public string? Style { get; set; }
-
     public ElementReference Element { get; set; }
 
-    public string SplitGridId { get; }
-
-    public string Classes => AttributeBuilder.New()
+    protected override string Classes => ClassBuilder
         .Append("split-grid")
-        .Append(SplitGridId)
-        .Append(Class)
-        .Build();
-
-    public string Styles => AttributeBuilder.New()
-        .Append(Style)
         .Build();
 
     private readonly Dictionary<string, GutterItem> _columns = new();
     private readonly Dictionary<string, GutterItem> _rows = new();
 
-    private SplitGridInterop? _splitGrid;
+    private int _currentColumn;
+    private int _currentRow;
+    private bool _newRow;
 
-    public SplitGrid()
-    {
-        SplitGridId = $"split-grid-{Guid.NewGuid().ToString()}";
-    }
+    private SplitGridInterop? _splitGrid;
 
     protected override Task OnInitializedAsync()
     {
@@ -160,11 +142,6 @@ public partial class SplitGrid : ComponentBase
         _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
     }
 
-    public async Task Refresh()
-    {
-        await InvokeAsync(StateHasChanged);
-    }
-
     public async Task AddColumnGutter(string querySelector, int track)
     {
         if (_splitGrid is null)
@@ -207,39 +184,56 @@ public partial class SplitGrid : ComponentBase
 
     internal GutterItem AddRow(SplitGridGutter gutter)
     {
-        var gutterItem = new GutterItem(gutter.SplitGridId, _rows.NextTrack());
+        var gutterItem = new GutterItem(gutter.SplitGridId, _rows.NextTrack(), gutter.Size);
 
-        if (gutter.MinSize.HasValue)
+        if (gutter.MinContentSize.HasValue)
         {
             RowMinSizes ??= new Dictionary<int, int>();
-            RowMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+            RowMinSizes[gutterItem.Track] = gutter.MinContentSize.Value;
         }
 
-        if (gutter.MaxSize.HasValue)
+        if (gutter.MaxContentSize.HasValue)
         {
             RowMaxSizes ??= new Dictionary<int, int>();
-            RowMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+            RowMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
         }
 
+        _newRow = false;
+        _currentColumn++;
         return _rows[gutter.SplitGridId] = gutterItem;
     }
 
     internal GutterItem AddColumn(SplitGridGutter gutter)
     {
-        var gutterItem = new GutterItem(gutter.SplitGridId, _columns.NextTrack());
+        var gutterItem = new GutterItem(gutter.SplitGridId, _columns.NextTrack(), gutter.Size);
 
-        if (gutter.MinSize.HasValue)
+        if (gutter.MinContentSize.HasValue)
         {
             ColumnMinSizes ??= new Dictionary<int, int>();
-            ColumnMinSizes[gutterItem.Track] = gutter.MinSize.Value;
+            ColumnMinSizes[gutterItem.Track] = gutter.MinContentSize.Value;
         }
 
-        if (gutter.MaxSize.HasValue)
+        if (gutter.MaxContentSize.HasValue)
         {
             ColumnMaxSizes ??= new Dictionary<int, int>();
-            ColumnMaxSizes[gutterItem.Track] = gutter.MaxSize.Value;
+            ColumnMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
         }
 
+        _newRow = false;
+        _currentColumn++;
         return _columns[gutter.SplitGridId] = gutterItem;
+    }
+
+    public GridPosition AddContent(SplitGridContent splitGridContent)
+    {
+        if (_newRow)
+        {
+            _currentRow++;
+            _currentColumn = 0;
+        }
+
+        var gridPosition = new GridPosition(_currentRow, _currentColumn);
+        _newRow = true;
+        return gridPosition;
     }
 }

@@ -1,46 +1,33 @@
 using BlazorSplitGrid.Elements;
+using BlazorSplitGrid.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
 namespace BlazorSplitGrid;
 
-public class SplitGridContent : ComponentBase
+public class SplitGridContent : SplitGridComponentBase
 {
     [CascadingParameter]
     public SplitGrid SplitGrid { get; set; } = null!;
 
-    [Parameter]
-    public string? Id { get; set; }
-
-    [Parameter]
-    public string? Class { get; set; }
-
-    [Parameter]
-    public string? Style { get; set; }
-
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
 
-    public string SplitGridId { get; }
+    private GridPosition? _position;
 
-    public string Classes => AttributeBuilder.New()
-        .Append(SplitGridId)
+    protected override string Classes => ClassBuilder
         .Append("split-grid-content")
-        .Append(Class)
+        .ConditionalAppend(() => _position is not null, $"split-grid-content-{_position!.Row}-{_position!.Column}")
         .Build();
 
-    public string Styles => AttributeBuilder.New()
-        .Append(Style)
-        .Build();
-
-    public SplitGridContent()
-    {
-        SplitGridId = $"split-grid-content-{Guid.NewGuid().ToString()}";
-    }
-
-    public async Task Refresh()
+    public async Task SetSize(int size)
     {
         await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        _position = SplitGrid.AddContent(this);
     }
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
