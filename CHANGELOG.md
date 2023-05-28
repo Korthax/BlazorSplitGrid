@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.6.0
+- Return the old size when setting a new one
+
 ## v1.5.0
 - Keep the units on sizes
 - Allow multiple track sizes to be set at once

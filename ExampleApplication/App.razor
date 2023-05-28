@@ -86,8 +86,7 @@
         }
         else
         {
-            _rowSize = await SplitGrid.GetSize(Direction.Row, 0);
-            await SplitGrid.SetSize(Direction.Row, 0, "0px");
+            _rowSize = await SplitGrid.SetSize(Direction.Row, 0, "0px");
             RowHidden = true;
         }
     }
@@ -106,8 +105,7 @@
         }
         else
         {
-            _columnSize = await SplitGrid.GetSize(Direction.Column, 0);
-            await SplitGrid.SetSize(Direction.Column, 0, "0px");
+            _columnSize = await SplitGrid.SetSize(Direction.Column, 0, "0px");
             ColumnHidden = true;
         }
     }

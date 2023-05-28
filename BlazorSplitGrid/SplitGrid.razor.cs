@@ -212,40 +212,44 @@ public partial class SplitGrid : SplitGridComponentBase
         return Grid.GetSizes(direction);
     }
 
-    public async Task SetSize(Direction direction, int track, string? size)
+    public async Task<string> SetSize(Direction direction, int track, string? size)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        Grid.Update(direction, track, size);
+        var oldSize = Grid.Update(direction, track, size);
         await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+        return oldSize;
     }
 
-    public async Task SetSize(Direction direction, string id, string? size)
+    public async Task<string> SetSize(Direction direction, string id, string? size)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        Grid.Update(direction, id, size);
+        var oldSize = Grid.Update(direction, id, size);
         await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+        return oldSize;
     }
 
-    public async Task SetSizes(Direction direction, string? sizes)
+    public async Task<string> SetSizes(Direction direction, string? sizes)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        Grid.Update(direction, sizes);
+        var oldSize = Grid.Update(direction, sizes);
         await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+        return oldSize;
     }
 
-    public async Task SetSizes(Direction direction, Dictionary<int, string> sizes)
+    public async Task<Dictionary<int, string>> SetSizes(Direction direction, Dictionary<int, string> sizes)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        Grid.Update(direction, sizes);
+        var oldSizes = Grid.Update(direction, sizes);
         await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+        return oldSizes;
     }
 
     public async Task Reset()

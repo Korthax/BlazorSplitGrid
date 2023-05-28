@@ -68,48 +68,51 @@ internal class Grid
         return (rowTrack, columnTrack);
     }
 
-    public bool ResetSizes()
+    public void ResetSizes()
     {
         _columnItems.ResetSizes();
         _rowItems.ResetSizes();
-        return true;
     }
 
-    public bool Update(Direction direction, int track, string? size)
+    public string Update(Direction direction, int track, string? size)
     {
         var items = direction == Direction.Column ? _columnItems : _rowItems;
         return items.SetSize(track, size);
     }
 
-    public bool Update(Direction direction, string id, string? size)
+    public string Update(Direction direction, string id, string? size)
     {
         var items = direction == Direction.Column ? _columnItems : _rowItems;
         return items.SetSize(id, size);
     }
 
-    public bool Update(Direction direction, Dictionary<int, string> tracks)
+    public Dictionary<int, string> Update(Direction direction, Dictionary<int, string> tracks)
     {
+        var currentSizes = GetSizes(direction);
         if (tracks.Count == 0)
-            return ResetSizes();
+            return currentSizes;
 
         var items = direction == Direction.Column ? _columnItems : _rowItems;
-        return tracks.Aggregate(false, (current, track) => items.SetSize(track.Key, track.Value) || current);
+        foreach (var track in tracks)
+            items.SetSize(track.Key, track.Value);
+        
+        return currentSizes;
     }
 
-    public bool Update(Direction direction, string? sizes)
+    public string Update(Direction direction, string? sizes)
     {
+        var currentSizes = Template(direction);
         if (string.IsNullOrWhiteSpace(sizes))
-            return false;
+            return currentSizes;
 
         var tokens = sizes.Split(" ")
             .ToList();
 
-        var updated = false;
         var items = direction == Direction.Column ? _columnItems : _rowItems;
         for (var i = 0; i < tokens.Count; i++)
-            updated = items.SetSize(i, tokens[i]) || updated;
+            items.SetSize(i, tokens[i]);
 
-        return updated;
+        return currentSizes;
     }
 
     public bool TryRemove(Direction direction, int track, out Track item)

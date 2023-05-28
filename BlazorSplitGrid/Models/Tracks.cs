@@ -59,16 +59,17 @@ public class Tracks : IEnumerable<Track>
         return _tracks.Count == 0 || _tracks.Last().IsGutter;
     }
 
-    public bool SetSize(int track, string? size)
+    public string SetSize(int trackNumber, string? size)
     {
-        if (_tracks.Count == 0 || track < 0 || _tracks.Count <= track || _tracks[track].Size == size)
-            return false;
+        if (_tracks.Count == 0 || trackNumber < 0 || _tracks.Count <= trackNumber || _tracks[trackNumber].Size == size)
+            return "0px";
 
-        _tracks[track] = _tracks[track] with { Size = size ?? _tracks[track].InitialSize };
-        return true;
+        var track = _tracks[trackNumber];
+        _tracks[trackNumber] = track with { Size = size ?? track.InitialSize };
+        return track.Size;
     }
 
-    public bool SetSize(string id, string? size)
+    public string SetSize(string id, string? size)
     {
         for (var i = 0; i < _tracks.Count; i++)
         {
@@ -76,11 +77,11 @@ public class Tracks : IEnumerable<Track>
             if (track.Id != id || track.Size == size)
                 continue;
 
-            _tracks[i] = track with { Size = size ?? _tracks[i].InitialSize };
-            return true;
+            _tracks[i] = track with { Size = size ?? track.InitialSize };
+            return track.Size;
         }
 
-        return false;
+        return "0px";
     }
 
     public string? GetSize(int track)
