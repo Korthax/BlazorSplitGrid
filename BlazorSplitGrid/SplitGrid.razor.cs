@@ -1,5 +1,6 @@
 using BlazorSplitGrid.Elements;
 using BlazorSplitGrid.Extensions;
+using BlazorSplitGrid.Interop;
 using BlazorSplitGrid.Models;
 using Microsoft.AspNetCore.Components;
 
@@ -19,11 +20,11 @@ public partial class SplitGrid : SplitGridComponentBase
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
 
-    [Parameter] 
-    public int? MinSize { get; set; }
+    [Parameter]
+    public decimal MinSize { get; set; }
 
-    [Parameter] 
-    public int? MaxSize { get; set; }
+    [Parameter]
+    public decimal MaxSize { get; set; } = decimal.MaxValue;
 
     [Parameter] 
     public int? ColumnMinSize { get; set; }
@@ -32,22 +33,10 @@ public partial class SplitGrid : SplitGridComponentBase
     public int? ColumnMaxSize { get; set; }
 
     [Parameter] 
-    public Dictionary<int, int>? ColumnMinSizes { get; set; } = new();
-
-    [Parameter] 
-    public Dictionary<int, int>? ColumnMaxSizes { get; set; } = new();
-
-    [Parameter] 
     public int? RowMinSize { get; set; }
 
     [Parameter] 
     public int? RowMaxSize { get; set; }
-
-    [Parameter] 
-    public Dictionary<int, int>? RowMinSizes { get; set; } = new();
-
-    [Parameter]
-    public Dictionary<int, int>? RowMaxSizes { get; set; } = new();
 
     [Parameter] 
     public int? SnapOffset { get; set; }
@@ -82,14 +71,9 @@ public partial class SplitGrid : SplitGridComponentBase
         .Append("split-grid")
         .Build();
 
-    private readonly Dictionary<string, GutterItem> _columns = new();
-    private readonly Dictionary<string, GutterItem> _rows = new();
-
-    private int _currentColumn;
-    private int _columnCount;
-    private int _currentRow;
-
+    private Grid Grid => _grid ??= Grid.New(this);
     private SplitGridInterop? _splitGrid;
+    private Grid? _grid;
 
     protected override Task OnInitializedAsync()
     {
@@ -110,68 +94,62 @@ public partial class SplitGrid : SplitGridComponentBase
         if (_splitGrid is null)
             return;
 
-        var options = new SplitGridOptions
-        {
-            MinSize = MinSize,
-            MaxSize = MaxSize,
-            ColumnMinSize = ColumnMinSize,
-            ColumnMaxSize = ColumnMaxSize,
-            ColumnMinSizes = ColumnMinSizes,
-            ColumnMaxSizes = ColumnMaxSizes,
-            RowMinSize = RowMinSize,
-            RowMaxSize = RowMaxSize,
-            RowMinSizes = RowMinSizes,
-            RowMaxSizes = RowMaxSizes,
-            SnapOffset = SnapOffset,
-            ColumnSnapOffset = ColumnSnapOffset,
-            RowSnapOffset = RowSnapOffset,
-            DragInterval = DragInterval,
-            RowDragInterval = RowDragInterval,
-            ColumnDragInterval = ColumnDragInterval,
-            Cursor = Cursor,
-            ColumnCursor = ColumnCursor,
-            RowCursor = RowCursor,
-            HasOnDrag = OnDrag.HasDelegate,
-            HasOnDragStart = OnDragStart.HasDelegate,
-            HasOnDragStop = OnDragStop.HasDelegate
-        };
-
-        await _splitGrid.Initialise(_rows.Values, _columns.Values, options);
+        await Grid.Initialise(_splitGrid);
         _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
-        _splitGrid.OnDragStart += (_, args) => OnDragStart.InvokeAsync(args);
-        _splitGrid.OnDragStop += (_, args) => OnDragStop.InvokeAsync(args);
+        _splitGrid.OnDragStart +=  async (_, args) => await OnSizesChanged(args, OnDragStart);
+        _splitGrid.OnDragStop += async (_, args) => await OnSizesChanged(args, OnDragStop);
     }
 
-    public async Task AddColumnGutter(string querySelector, int track)
+    public async Task<Track> AppendColumnGutter(string selector, decimal size)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        await _splitGrid.AddColumnGutter(querySelector, track);
+        var item = Grid.AddColumnGutter(selector, size);
+        await _splitGrid.AddColumnGutter(selector, item.Number);
+        return item;
     }
 
-    public async Task AddRowGutter(string querySelector, int track)
+    public async Task<Track> AppendRowGutter(string selector, decimal size)
     {
         if (_splitGrid is null)
-            return;
+            throw new InvalidOperationException("SplitGrid is not initialised");
 
-        await _splitGrid.AddRowGutter(querySelector, track);
+        var item = Grid.AddRowGutter(selector, size);
+        await _splitGrid.AddRowGutter(selector, item.Number);
+        return item;
     }
 
-    public async Task RemoveColumnGutter(string querySelector, int track, bool immediate = true)
+    public async Task RemoveColumnGutter(int trackNumber, bool immediate = true)
     {
-        if (_splitGrid is null)
+        if (_splitGrid is null || !Grid.TryRemove(Direction.Column, trackNumber, out var item))
             return;
 
-        await _splitGrid.RemoveColumnGutter(querySelector, track, immediate);
+        await _splitGrid.RemoveColumnGutter(item.Selector, item.Number, immediate);
     }
 
-    public async Task RemoveRowGutter(string querySelector, int track, bool immediate = true)
+    public async Task RemoveColumnGutter(string id, bool immediate = true)
     {
-        if (_splitGrid is null)
+        if (_splitGrid is null || !Grid.TryRemove(Direction.Column, id, out var item))
             return;
 
-        await _splitGrid.RemoveRowGutter(querySelector, track, immediate);
+        await _splitGrid.RemoveColumnGutter(item.Selector, item.Number, immediate);
+    }
+
+    public async Task RemoveRowGutter(int trackNumber, bool immediate = true)
+    {
+        if (_splitGrid is null || !Grid.TryRemove(Direction.Row, trackNumber, out var item))
+            return;
+
+        await _splitGrid.RemoveRowGutter(item.Selector, item.Number, immediate);
+    }
+
+    public async Task RemoveRowGutter(string id, bool immediate = true)
+    {
+        if (_splitGrid is null || !Grid.TryRemove(Direction.Row, id, out var item))
+            return;
+
+        await _splitGrid.RemoveRowGutter(item.Selector, item.Number, immediate);
     }
 
     public async Task Destroy(bool immediate = true)
@@ -182,52 +160,102 @@ public partial class SplitGrid : SplitGridComponentBase
         await _splitGrid.Destroy(immediate);
     }
 
-    internal GutterItem AddRow(SplitGridGutter gutter)
+    public async Task SetSize(Direction direction, int track, decimal? size)
     {
-        var gutterItem = new GutterItem(gutter.SplitGridId, _rows.NextTrack(), gutter.Size);
+        if (_splitGrid is null)
+            return;
 
-        if (gutter.MinContentSize.HasValue)
-        {
-            RowMinSizes ??= new Dictionary<int, int>();
-            RowMinSizes[gutterItem.Track] = gutter.MinContentSize.Value;
-        }
-
-        if (gutter.MaxContentSize.HasValue)
-        {
-            RowMaxSizes ??= new Dictionary<int, int>();
-            RowMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
-        }
-
-        _currentRow++;
-        return _rows[gutter.SplitGridId] = gutterItem;
+        Grid.Update(direction, track, size);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
     }
 
-    internal GutterItem AddColumn(SplitGridGutter gutter)
+    public async Task<decimal?> GetSize(Direction direction, int track, bool refresh = false)
     {
-        var gutterItem = new GutterItem(gutter.SplitGridId, _columns.NextTrack(), gutter.Size);
+        if (_splitGrid is null)
+            return null;
 
-        if (gutter.MinContentSize.HasValue)
-        {
-            ColumnMinSizes ??= new Dictionary<int, int>();
-            ColumnMinSizes[gutterItem.Track] = gutter.MinContentSize.Value;
-        }
+        if (!refresh)
+            return Grid.GetSize(direction, track);
 
-        if (gutter.MaxContentSize.HasValue)
-        {
-            ColumnMaxSizes ??= new Dictionary<int, int>();
-            ColumnMaxSizes[gutterItem.Track] = gutter.MaxContentSize.Value;
-        }
-
-        _columnCount++;
-        return _columns[gutter.SplitGridId] = gutterItem;
+        var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
+        Grid.Update(direction, sizes);
+        return Grid.GetSize(direction, track);
     }
 
-    public GridPosition AddContent()
+    public async Task SetSize(Direction direction, string id, decimal? size)
     {
-        if (_currentColumn > _columnCount)
-            _currentColumn = 0;
+        if (_splitGrid is null)
+            return;
 
-        var gridPosition = new GridPosition(_currentRow * 2,  _currentColumn++ * 2);
-        return gridPosition;
+        Grid.Update(direction, id, size);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+    }
+
+    public async Task<decimal?> GetSize(Direction direction, string id, bool refresh = false)
+    {
+        if (_splitGrid is null)
+            return null;
+
+        if (!refresh)
+            return Grid.GetSize(direction, id);
+
+        var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
+        Grid.Update(direction, sizes);
+        return Grid.GetSize(direction, id);
+    }
+
+    public async Task SetSizes(Direction direction, string? sizes)
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.Update(direction, sizes);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+    }
+
+    public async Task<string> GetSizes(Direction direction, bool refresh = false)
+    {
+        if (_splitGrid is null)
+            return string.Empty;
+
+        if (!refresh)
+            return Grid.Template(direction);
+
+        var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
+        Grid.Update(direction, sizes);
+        return Grid.Template(direction);
+    }
+
+    public async Task Reset()
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.ResetSizes();
+        await _splitGrid.SetSizes(".split-grid", "grid-template-rows", Grid.Template(Direction.Row));
+        await _splitGrid.SetSizes(".split-grid", "grid-template-columns", Grid.Template(Direction.Column));
+    }
+
+    internal Track AddRow(SplitGridGutter gutter)
+    {
+        return Grid.AddRowGutter(gutter);
+    }
+
+    internal Track AddColumn(SplitGridGutter gutter)
+    {
+        return Grid.AddColumnGutter(gutter);
+    }
+
+    public (Track Row, Track Column) AddContent(SplitGridContent content)
+    {
+        return Grid.AddContent(content);
+    }
+
+    private async Task OnSizesChanged(DragEventArgs eventArgs, EventCallback<DragEventArgs> callback)
+    {
+        if (!string.IsNullOrWhiteSpace(eventArgs.GridTemplateStyle))
+            Grid.Update(eventArgs.Direction, eventArgs.GridTemplateStyle);
+
+        await callback.InvokeAsync(eventArgs);
     }
 }

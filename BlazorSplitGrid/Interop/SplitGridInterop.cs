@@ -1,9 +1,9 @@
 using BlazorSplitGrid.Models;
 using Microsoft.JSInterop;
 
-namespace BlazorSplitGrid;
+namespace BlazorSplitGrid.Interop;
 
-internal class SplitGridInterop : IAsyncDisposable
+internal class SplitGridInterop : IAsyncDisposable, ISplitGridInterop
 {
     private const string ContentPath = "./_content/BlazorSplitGrid/splitGridInterop.js";
 
@@ -19,11 +19,11 @@ internal class SplitGridInterop : IAsyncDisposable
         _moduleTask = new Lazy<ValueTask<IJSObjectReference>>(() => jsRuntime.InvokeAsync<IJSObjectReference>("import", ContentPath));
     }
 
-    public async Task Initialise(IEnumerable<GutterItem> rows, IEnumerable<GutterItem> columns, SplitGridOptions options)
+    public async Task Initialise(IEnumerable<Track> rowGutters, IEnumerable<Track> columnGutters, SplitGridOptions options)
     {
         var module = await _moduleTask.Value;
         var interopRef = DotNetObjectReference.Create(this);
-        _gridInstance = await module.InvokeAsync<IJSObjectReference>("initSplitGrid", rows, columns, options.ToInteroperable(), interopRef);
+        _gridInstance = await module.InvokeAsync<IJSObjectReference>("initSplitGrid", rowGutters, columnGutters, options.ToInteroperable(), interopRef);
     }
 
     public async ValueTask DisposeAsync()
@@ -75,21 +75,37 @@ internal class SplitGridInterop : IAsyncDisposable
         await _gridInstance!.InvokeVoidAsync("destroy", immediate);
     }
 
+    public async Task SetSizes(string querySelector, string templateName, string sizes)
+    {
+        if (_gridInstance is null || string.IsNullOrWhiteSpace(sizes))
+            return;
+
+        await _gridInstance!.InvokeVoidAsync("setGridSizes", querySelector, templateName, sizes);
+    }
+
+    public async Task<string> GetSizes(string querySelector, string templateName)
+    {
+        if (_gridInstance is null)
+            return string.Empty;
+
+        return await _gridInstance!.InvokeAsync<string>("getGridSizes", querySelector, templateName);
+    }
+
     [JSInvokable]
-    public void OnDragFired(string direction, int track, string gridTemplateStyle)
+    public void OnDragFired(string direction, int track, string? gridTemplateStyle)
     {
         OnDrag?.Invoke(this, new DragEventArgs(Enum.Parse<Direction>(direction, true), track, gridTemplateStyle));
     }
 
     [JSInvokable]
-    public void OnDragStartFired(string direction, int track)
+    public void OnDragStartFired(string direction, int track, string? gridTemplateStyle)
     {
-        OnDragStart?.Invoke(this, new DragEventArgs(Enum.Parse<Direction>(direction, true), track));
+        OnDragStart?.Invoke(this, new DragEventArgs(Enum.Parse<Direction>(direction, true), track, gridTemplateStyle));
     }
 
     [JSInvokable]
-    public void OnDragEndFired(string direction, int track)
+    public void OnDragEndFired(string direction, int track, string? gridTemplateStyle)
     {
-        OnDragStop?.Invoke(this, new DragEventArgs(Enum.Parse<Direction>(direction, true), track));
+        OnDragStop?.Invoke(this, new DragEventArgs(Enum.Parse<Direction>(direction, true), track, gridTemplateStyle));
     }
 }
