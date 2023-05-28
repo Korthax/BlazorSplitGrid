@@ -11,13 +11,13 @@ public class SplitGridGutter : SplitGridComponentBase
     public SplitGrid SplitGrid { get; set; } = null!;
 
     [Parameter]
-    public decimal? MinSize { get; set; }
+    public int? MinSize { get; set; }
 
     [Parameter]
-    public decimal? MaxSize { get; set; }
+    public int? MaxSize { get; set; }
 
     [Parameter]
-    public decimal Size { get; set; } = 10;
+    public string Size { get; set; } = "10px";
 
     [Parameter]
     public Direction Direction { get; set; }
@@ -34,7 +34,7 @@ public class SplitGridGutter : SplitGridComponentBase
 
     private Track? _item;
 
-    public async Task SetSize(decimal size)
+    public async Task SetSize(string size)
     {
         await SplitGrid.SetSize(Direction, SplitGridId, size);
     }

@@ -33,7 +33,7 @@ internal class Grid
         return track;
     }
 
-    public Track AddRowGutter(string selector, decimal size)
+    public Track AddRowGutter(string selector, string size)
     {
         var track = new Track(selector, _rowItems.Count, true, size, size, _sizeConstraints.RowMin, _sizeConstraints.RowMax, selector);
         _rowItems.Add(track);
@@ -47,7 +47,7 @@ internal class Grid
         return track;
     }
 
-    public Track AddColumnGutter(string selector, decimal size)
+    public Track AddColumnGutter(string selector, string size)
     {
         var track = new Track(selector, _columnItems.Count, true, size, size, _sizeConstraints.ColumnMin, _sizeConstraints.ColumnMax, selector);
         _columnItems.Add(track);
@@ -75,25 +75,33 @@ internal class Grid
         return true;
     }
 
-    public bool Update(Direction direction, int track, decimal? size)
+    public bool Update(Direction direction, int track, string? size)
     {
         var items = direction == Direction.Column ? _columnItems : _rowItems;
         return items.SetSize(track, size);
     }
 
-    public bool Update(Direction direction, string id, decimal? size)
+    public bool Update(Direction direction, string id, string? size)
     {
         var items = direction == Direction.Column ? _columnItems : _rowItems;
         return items.SetSize(id, size);
     }
 
+    public bool Update(Direction direction, Dictionary<int, string> tracks)
+    {
+        if (tracks.Count == 0)
+            return ResetSizes();
+
+        var items = direction == Direction.Column ? _columnItems : _rowItems;
+        return tracks.Aggregate(false, (current, track) => items.SetSize(track.Key, track.Value) || current);
+    }
+
     public bool Update(Direction direction, string? sizes)
     {
         if (string.IsNullOrWhiteSpace(sizes))
-            return ResetSizes();
-        
+            return false;
+
         var tokens = sizes.Split(" ")
-            .Select(x => decimal.Parse(x.Replace("px", "").Replace("fr", "")))
             .ToList();
 
         var updated = false;
@@ -116,18 +124,25 @@ internal class Grid
         return items.TryRemove(id, out item);
     }
 
-    public decimal? GetSize(Direction direction, int track)
+    public string? GetSize(Direction direction, int track)
     {
         return direction == Direction.Column
             ? _columnItems.GetSize(track)
             : _rowItems.GetSize(track);
     }
 
-    public decimal? GetSize(Direction direction, string id)
+    public string? GetSize(Direction direction, string id)
     {
         return direction == Direction.Column
             ? _columnItems.GetSize(id)
             : _rowItems.GetSize(id);
+    }
+
+    public Dictionary<int, string> GetSizes(Direction direction)
+    {
+        return direction == Direction.Column
+            ? _columnItems.ToDictionary(x => x.Number, x => x.Size)
+            : _rowItems.ToDictionary(x => x.Number, x => x.Size);
     }
 
     public string Template(Direction direction)

@@ -21,10 +21,10 @@ public partial class SplitGrid : SplitGridComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public decimal MinSize { get; set; }
+    public int MinSize { get; set; }
 
     [Parameter]
-    public decimal MaxSize { get; set; } = decimal.MaxValue;
+    public int MaxSize { get; set; } = int.MaxValue;
 
     [Parameter] 
     public int? ColumnMinSize { get; set; }
@@ -100,7 +100,7 @@ public partial class SplitGrid : SplitGridComponentBase
         _splitGrid.OnDragStop += async (_, args) => await OnSizesChanged(args, OnDragStop);
     }
 
-    public async Task<Track> AppendColumnGutter(string selector, decimal size)
+    public async Task<Track> AppendColumnGutter(string selector, string size)
     {
         if (_splitGrid is null)
             throw new InvalidOperationException("SplitGrid is not initialised");
@@ -110,7 +110,7 @@ public partial class SplitGrid : SplitGridComponentBase
         return item;
     }
 
-    public async Task<Track> AppendRowGutter(string selector, decimal size)
+    public async Task<Track> AppendRowGutter(string selector, string size)
     {
         if (_splitGrid is null)
             throw new InvalidOperationException("SplitGrid is not initialised");
@@ -160,16 +160,7 @@ public partial class SplitGrid : SplitGridComponentBase
         await _splitGrid.Destroy(immediate);
     }
 
-    public async Task SetSize(Direction direction, int track, decimal? size)
-    {
-        if (_splitGrid is null)
-            return;
-
-        Grid.Update(direction, track, size);
-        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
-    }
-
-    public async Task<decimal?> GetSize(Direction direction, int track, bool refresh = false)
+    public async Task<string?> GetSize(Direction direction, int track, bool refresh = false)
     {
         if (_splitGrid is null)
             return null;
@@ -182,16 +173,7 @@ public partial class SplitGrid : SplitGridComponentBase
         return Grid.GetSize(direction, track);
     }
 
-    public async Task SetSize(Direction direction, string id, decimal? size)
-    {
-        if (_splitGrid is null)
-            return;
-
-        Grid.Update(direction, id, size);
-        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
-    }
-
-    public async Task<decimal?> GetSize(Direction direction, string id, bool refresh = false)
+    public async Task<string?> GetSize(Direction direction, string id, bool refresh = false)
     {
         if (_splitGrid is null)
             return null;
@@ -202,15 +184,6 @@ public partial class SplitGrid : SplitGridComponentBase
         var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
         Grid.Update(direction, sizes);
         return Grid.GetSize(direction, id);
-    }
-
-    public async Task SetSizes(Direction direction, string? sizes)
-    {
-        if (_splitGrid is null)
-            return;
-
-        Grid.Update(direction, sizes);
-        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
     }
 
     public async Task<string> GetSizes(Direction direction, bool refresh = false)
@@ -224,6 +197,55 @@ public partial class SplitGrid : SplitGridComponentBase
         var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
         Grid.Update(direction, sizes);
         return Grid.Template(direction);
+    }
+
+    public async Task<Dictionary<int, string>> GetTrackSizes(Direction direction, bool refresh = false)
+    {
+        if (_splitGrid is null)
+            return new Dictionary<int, string>();
+
+        if (!refresh)
+            return Grid.GetSizes(direction);
+
+        var sizes = await _splitGrid.GetSizes(".split-grid", direction.ToGridTemplate());
+        Grid.Update(direction, sizes);
+        return Grid.GetSizes(direction);
+    }
+
+    public async Task SetSize(Direction direction, int track, string? size)
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.Update(direction, track, size);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+    }
+
+    public async Task SetSize(Direction direction, string id, string? size)
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.Update(direction, id, size);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+    }
+
+    public async Task SetSizes(Direction direction, string? sizes)
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.Update(direction, sizes);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
+    }
+
+    public async Task SetSizes(Direction direction, Dictionary<int, string> sizes)
+    {
+        if (_splitGrid is null)
+            return;
+
+        Grid.Update(direction, sizes);
+        await _splitGrid.SetSizes(".split-grid", direction.ToGridTemplate(), Grid.Template(direction));
     }
 
     public async Task Reset()

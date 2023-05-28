@@ -14,7 +14,7 @@ public class SplitGridContent : SplitGridComponentBase
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public decimal Size { get; set; } = 1;
+    public string Size { get; set; } = "1fr";
 
     private (Track Row, Track Column) _tracks;
 
@@ -24,7 +24,7 @@ public class SplitGridContent : SplitGridComponentBase
         .Append($"split-grid-content-column-{_tracks.Column.Number}")
         .Build();
 
-    public async Task SetSize(Direction direction, decimal size)
+    public async Task SetSize(Direction direction, string size)
     {
         await SplitGrid.SetSize(direction, SplitGridId, size);
     }

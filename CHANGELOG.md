@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.5.0
+- Keep the units on sizes
+- Allow multiple track sizes to be set at once
+
 ## v1.4.0
 - Rebuilt the internal grid so it tracks more state blazor-side
 - Added ability to set/get sizes

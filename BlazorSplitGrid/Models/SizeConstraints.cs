@@ -2,14 +2,14 @@ namespace BlazorSplitGrid.Models;
 
 public record SizeConstraints
 {
-    public decimal Min { get; }
-    public decimal Max { get; }
-    public decimal RowMin { get; }
-    public decimal RowMax { get; }
-    public decimal ColumnMin { get; }
-    public decimal ColumnMax { get; }
+    public int Min { get; }
+    public int Max { get; }
+    public int RowMin { get; }
+    public int RowMax { get; }
+    public int ColumnMin { get; }
+    public int ColumnMax { get; }
 
-    public SizeConstraints(decimal min, decimal max, decimal? rowMin, decimal? rowMax, decimal? columnMin, decimal? columnMax)
+    public SizeConstraints(int min, int max, int? rowMin, int? rowMax, int? columnMin, int? columnMax)
     {
         Min = min;
         Max = max;

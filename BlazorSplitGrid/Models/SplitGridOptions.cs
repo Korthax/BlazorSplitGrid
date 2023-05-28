@@ -4,16 +4,16 @@ namespace BlazorSplitGrid.Models;
 
 public class SplitGridOptions
 {
-    public decimal? MinSize { get; set; }
-    public decimal? MaxSize { get; set; }
-    public decimal? ColumnMinSize { get; set; }
-    public decimal? ColumnMaxSize { get; set; }
-    public decimal? RowMinSize { get; set; }
-    public decimal? RowMaxSize { get; set; }
-    public Dictionary<int, decimal>? ColumnMinSizes { get; set; }
-    public Dictionary<int, decimal>? ColumnMaxSizes { get; set; }
-    public Dictionary<int, decimal>? RowMinSizes { get; set; }
-    public Dictionary<int, decimal>? RowMaxSizes { get; set; }
+    public int? MinSize { get; set; }
+    public int? MaxSize { get; set; }
+    public int? ColumnMinSize { get; set; }
+    public int? ColumnMaxSize { get; set; }
+    public int? RowMinSize { get; set; }
+    public int? RowMaxSize { get; set; }
+    public Dictionary<int, int>? ColumnMinSizes { get; set; }
+    public Dictionary<int, int>? ColumnMaxSizes { get; set; }
+    public Dictionary<int, int>? RowMinSizes { get; set; }
+    public Dictionary<int, int>? RowMaxSizes { get; set; }
     public int? SnapOffset { get; set; }
     public int? ColumnSnapOffset { get; set; }
     public int? RowSnapOffset { get; set; }

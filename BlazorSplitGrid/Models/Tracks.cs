@@ -59,7 +59,7 @@ public class Tracks : IEnumerable<Track>
         return _tracks.Count == 0 || _tracks.Last().IsGutter;
     }
 
-    public bool SetSize(int track, decimal? size)
+    public bool SetSize(int track, string? size)
     {
         if (_tracks.Count == 0 || track < 0 || _tracks.Count <= track || _tracks[track].Size == size)
             return false;
@@ -68,7 +68,7 @@ public class Tracks : IEnumerable<Track>
         return true;
     }
 
-    public bool SetSize(string id, decimal? size)
+    public bool SetSize(string id, string? size)
     {
         for (var i = 0; i < _tracks.Count; i++)
         {
@@ -83,7 +83,7 @@ public class Tracks : IEnumerable<Track>
         return false;
     }
 
-    public decimal? GetSize(int track)
+    public string? GetSize(int track)
     {
         if (_tracks.Count == 0 || track < 0 || _tracks.Count <= track)
             return null;
@@ -91,7 +91,7 @@ public class Tracks : IEnumerable<Track>
         return _tracks[track].Size;
     }
 
-    public decimal? GetSize(string id)
+    public string? GetSize(string id)
     {
         return _tracks.FirstOrDefault(x => x.Id == id)?.Size;
     }

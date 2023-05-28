@@ -46,10 +46,10 @@
     private bool RowHidden { get; set; }
 
     private string? _columnSizes;
-    private decimal? _columnSize;
+    private string? _columnSize;
 
     private string? _rowSizes;
-    private decimal? _rowSize;
+    private string? _rowSize;
 
     private Task OnDragStop(DragEventArgs eventArgs)
     {
@@ -79,7 +79,7 @@
 
         if (RowHidden)
         {
-            if (_rowSize.HasValue)
+            if (_rowSize is not null)
                 await SplitGrid.SetSize(Direction.Row, 0, _rowSize);
 
             RowHidden = false;
@@ -87,7 +87,7 @@
         else
         {
             _rowSize = await SplitGrid.GetSize(Direction.Row, 0);
-            await SplitGrid.SetSize(Direction.Row, 0, 0);
+            await SplitGrid.SetSize(Direction.Row, 0, "0px");
             RowHidden = true;
         }
     }
@@ -99,7 +99,7 @@
 
         if (ColumnHidden)
         {
-            if (_columnSize.HasValue)
+            if (_columnSize is not null)
                 await SplitGrid.SetSize(Direction.Column, 0, _columnSize);
 
             ColumnHidden = false;
@@ -107,7 +107,7 @@
         else
         {
             _columnSize = await SplitGrid.GetSize(Direction.Column, 0);
-            await SplitGrid.SetSize(Direction.Column, 0, 0);
+            await SplitGrid.SetSize(Direction.Column, 0, "0px");
             ColumnHidden = true;
         }
     }

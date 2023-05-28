@@ -89,7 +89,7 @@ public class GridTests
         grid.AddColumnGutter(splitGridColumn);
         grid.AddContent(new SplitGridContent());
 
-        grid.Update(Direction.Column, splitGridColumn.SplitGridId, 0);
+        grid.Update(Direction.Column, splitGridColumn.SplitGridId, "0px");
 
         var css = grid.Template(Direction.Column);
         css.Should().Be("1fr 0px 1fr");
@@ -105,7 +105,7 @@ public class GridTests
         grid.AddColumnGutter(new SplitGridColumn());
         grid.AddContent(new SplitGridContent());
 
-        grid.Update(Direction.Column, splitGridContent.SplitGridId, 0);
+        grid.Update(Direction.Column, splitGridContent.SplitGridId, "0fr");
 
         var css = grid.Template(Direction.Column);
         css.Should().Be("0fr 10px 1fr");
@@ -119,7 +119,7 @@ public class GridTests
         grid.AddColumnGutter(new SplitGridColumn());
         grid.AddContent(new SplitGridContent());
 
-        grid.Update(Direction.Column, 1, 0);
+        grid.Update(Direction.Column, 1, "0px");
 
         var css = grid.Template(Direction.Column);
         css.Should().Be("1fr 0px 1fr");
@@ -133,7 +133,7 @@ public class GridTests
         grid.AddRowGutter(new SplitGridRow());
         grid.AddContent(new SplitGridContent());
 
-        grid.Update(Direction.Row, 1, 0);
+        grid.Update(Direction.Row, 1, "0px");
 
         var css = grid.Template(Direction.Row);
         css.Should().Be("1fr 0px 1fr");
@@ -147,7 +147,7 @@ public class GridTests
         grid.AddRowGutter(new SplitGridRow());
         grid.AddContent(new SplitGridContent());
 
-        grid.Update(Direction.Row, 0, 0);
+        grid.Update(Direction.Row, 0, "0fr");
 
         var css = grid.Template(Direction.Row);
         css.Should().Be("0fr 10px 1fr");
@@ -192,7 +192,7 @@ public class GridTests
         grid.AddContent(new SplitGridContent());
 
         var size = grid.GetSize(Direction.Column, splitGridColumn.SplitGridId);
-        size.Should().Be(10);
+        size.Should().Be("10px");
     }
 
     [Fact]
@@ -204,7 +204,7 @@ public class GridTests
         grid.AddContent(new SplitGridContent());
 
         var size = grid.GetSize(Direction.Column, 2);
-        size.Should().Be(1);
+        size.Should().Be("1fr");
     }
 
     [Fact]
@@ -218,7 +218,7 @@ public class GridTests
         grid.AddContent(new SplitGridContent());
 
         var size = grid.GetSize(Direction.Row, splitGridColumn.SplitGridId);
-        size.Should().Be(10);
+        size.Should().Be("10px");
     }
 
     [Fact]
@@ -230,6 +230,6 @@ public class GridTests
         grid.AddContent(new SplitGridContent());
 
         var size = grid.GetSize(Direction.Row, 2);
-        size.Should().Be(1);
+        size.Should().Be("1fr");
     }
 }
