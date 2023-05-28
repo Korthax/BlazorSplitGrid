@@ -7,3 +7,7 @@
     grid-column: 1/-1;
     cursor: row-resize;
 }
+
+.split-grid-gutter.disabled {
+    pointer-events: none;
+}

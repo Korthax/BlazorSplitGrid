@@ -1,11 +1,21 @@
 ﻿@using DragEventArgs = BlazorSplitGrid.Models.DragEventArgs
+@using BlazorSplitGrid.Models
 
-<div style="height: 1000px">
-    <SplitGrid SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop" OnDragStart="@OnDragStart">
+<div style="width:100%; padding-bottom: 10px">
+    <input @onclick="Reset" type="button" value="Reset" style="display: inline-block"/>
+    <input @onclick="GetSizes" type="button" value="Get Sizes" style="display: inline-block"/>
+    <input @onclick="SetSizes" type="button" value="Load Sizes" style="display: inline-block"/>
+    <input @onclick="ToggleColumn" type="button" value="@(ColumnHidden ? "Show Column" : "Hide Column")" style="display: inline-block"/>
+    <input @onclick="ToggleRow" type="button" value="@(RowHidden ? "Show Row" : "Hide Row")" style="display: inline-block"/>
+    <input @onclick="FreezeGutter" type="button" value="@(ColumnDisabled ? "Enable Column 1" : "Disable Column 1")" style="display: inline-block"/>
+</div>
+
+<div style="height: 1000px; width:100%; padding-bottom: 10px">
+    <SplitGrid @ref="SplitGrid" SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop" OnDragStart="@OnDragStart">
         <SplitGridContent Style="background-color: red"></SplitGridContent>
-        <SplitGridColumn />
+        <SplitGridColumn @ref="ColumnGutter" />
         <SplitGridContent Style="background-color: green"></SplitGridContent>
-        <SplitGridColumn />
+        <SplitGridColumn/>
         <SplitGridContent Style="background-color: blue"></SplitGridContent>
         <SplitGridRow />
         <SplitGridContent Style="background-color: magenta"></SplitGridContent>
@@ -18,10 +28,29 @@
     </SplitGrid>
 </div>
 
+<div style="width:100%; padding-bottom: 10px">
+    <h3>Output:</h3>
+    @foreach (var output in Output)
+    {
+        <p>@output</p>
+    }
+</div>
 
 @code {
-    private const string Content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-    
+    private SplitGrid? SplitGrid { get; set; }
+    private SplitGridColumn? ColumnGutter { get; set; }
+    private Stack<string> Output { get; set; } = new();
+
+    private bool ColumnDisabled => ColumnGutter?.Disabled ?? false;
+    private bool ColumnHidden { get; set; }
+    private bool RowHidden { get; set; }
+
+    private string? _columnSizes;
+    private decimal? _columnSize;
+
+    private string? _rowSizes;
+    private decimal? _rowSize;
+
     private Task OnDragStop(DragEventArgs eventArgs)
     {
         Console.WriteLine($"{nameof(OnDragStop)}: [{eventArgs.Direction}] {eventArgs.Track}");
@@ -32,5 +61,89 @@
     {
         Console.WriteLine($"{nameof(OnDragStart)}: [{eventArgs.Direction}] {eventArgs.Track}");
         return Task.CompletedTask;
+    }
+
+    private async Task Reset()
+    {
+        if (SplitGrid is null)
+            return;
+
+        await SplitGrid.Reset();
+        Output.Clear();
+    }
+
+    private async Task ToggleRow()
+    {
+        if (SplitGrid is null)
+            return;
+
+        if (RowHidden)
+        {
+            if (_rowSize.HasValue)
+                await SplitGrid.SetSize(Direction.Row, 0, _rowSize);
+
+            RowHidden = false;
+        }
+        else
+        {
+            _rowSize = await SplitGrid.GetSize(Direction.Row, 0);
+            await SplitGrid.SetSize(Direction.Row, 0, 0);
+            RowHidden = true;
+        }
+    }
+
+    private async Task ToggleColumn()
+    {
+        if (SplitGrid is null)
+            return;
+
+        if (ColumnHidden)
+        {
+            if (_columnSize.HasValue)
+                await SplitGrid.SetSize(Direction.Column, 0, _columnSize);
+
+            ColumnHidden = false;
+        }
+        else
+        {
+            _columnSize = await SplitGrid.GetSize(Direction.Column, 0);
+            await SplitGrid.SetSize(Direction.Column, 0, 0);
+            ColumnHidden = true;
+        }
+    }
+
+    private async Task FreezeGutter()
+    {
+        if (ColumnGutter is null)
+            return;
+        
+        if (ColumnGutter.Disabled)
+            await ColumnGutter.Enable();
+        else
+            await ColumnGutter.Disable();
+    }
+
+    private async Task GetSizes()
+    {
+        if (SplitGrid is null)
+            return;
+
+        _rowSizes = await SplitGrid.GetSizes(Direction.Row);
+        _columnSizes = await SplitGrid.GetSizes(Direction.Column);
+
+        Output.Push($"[{DateTime.Now.ToLongTimeString()}] {Direction.Row}: {_rowSizes}");
+        Output.Push($"[{DateTime.Now.ToLongTimeString()}] {Direction.Column}: {_columnSizes}");
+    }
+
+    private async Task SetSizes()
+    {
+        if (SplitGrid is null)
+            return;
+
+        if (!string.IsNullOrWhiteSpace(_rowSizes))
+            await SplitGrid.SetSizes(Direction.Row, _rowSizes);
+
+        if (!string.IsNullOrWhiteSpace(_columnSizes))
+            await SplitGrid.SetSizes(Direction.Column, _columnSizes);
     }
 }

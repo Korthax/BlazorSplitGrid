@@ -14,7 +14,7 @@ public abstract class SplitGridComponentBase : ComponentBase
     [Parameter]
     public string? Style { get; set; }
 
-    public string SplitGridId { get; }
+    public string SplitGridId { get; internal set; }
 
     protected virtual string Classes => ClassBuilder.Build();
     protected virtual string Styles => StyleBuilder.Build();

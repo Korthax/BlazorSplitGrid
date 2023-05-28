@@ -6,7 +6,7 @@ const splitGridStyleId = "split-grid-style";
 
 export function initSplitGrid(rows, columns, options, interopReference) {
     BuildStylesheetLink();
-    BuildStyles(rows, columns);
+    BuildStyles(options.css);
 
     if(options.hasOnDrag) {
         options.onDrag = function(direction, track, gridTemplateStyle) {
@@ -16,26 +16,32 @@ export function initSplitGrid(rows, columns, options, interopReference) {
 
     if(options.hasOnDragStart) {
         options.onDragStart = function (direction, track) {
-            interopReference.invokeMethod("OnDragStartFired", direction, track);
+            const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
+            const element = document.querySelector(".split-grid");
+            const gridTemplateStyle = element.style[templateName];
+            interopReference.invokeMethod("OnDragStartFired", direction, track, gridTemplateStyle);
         }
     }
 
     if(options.hasOnDragStop) {
         options.onDragEnd = function (direction, track) {
-            interopReference.invokeMethod("OnDragEndFired", direction, track);
+            const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
+            const element = document.querySelector(".split-grid");
+            const gridTemplateStyle = element.style[templateName];
+            interopReference.invokeMethod("OnDragEndFired", direction, track, gridTemplateStyle);
         }
     }
 
     options.columnGutters = columns.map(x => {
         return {
-            track: x.track,
+            track: x.number,
             element: document.querySelector(`.${x.id}`)
         }
     });
 
     options.rowGutters = rows.map(x => {
         return {
-            track: x.track,
+            track: x.number,
             element: document.querySelector(`.${x.id}`)
         }
     });
@@ -67,9 +73,16 @@ export function initSplitGrid(rows, columns, options, interopReference) {
         split.removeColumnGutter(document.querySelector(selector), track, immediate);
     };
 
-    split.removeRowGutterByQuerySelector = (selector, track, immediate = true) =>
+    split.setGridSizes = (selector, templateName, sizes) =>
     {
-        split.removeRowGutter(document.querySelector(selector), track, immediate);
+        document.querySelector(selector).style[templateName] = sizes
+    };
+
+    split.getGridSizes = (selector, templateName) =>
+    {
+        const element = document.querySelector(selector);
+        const styleElement = element.style[templateName];
+        return styleElement.toString();
     };
 
     return split;
@@ -87,7 +100,7 @@ function BuildStylesheetLink()  {
     document.head.appendChild(link);
 }
 
-function BuildStyles(rows, columns) {
+function BuildStyles(css) {
     let style = document.getElementById(splitGridStyleId);
 
     if (!style) {
@@ -96,39 +109,5 @@ function BuildStyles(rows, columns) {
         document.head.appendChild(style);
     }
     
-    const cssBuilder = [];
-
-    cssBuilder.push('.split-grid {');
-    cssBuilder.push('\tdisplay: grid;');
-    cssBuilder.push('\theight: 100%;');
-    if(rows.length > 0) {
-        let template = "1fr ";
-        for (let i = 0 ; i < rows.length; i++) {
-            template += `${rows[i].size}px 1fr `;
-        }
-
-        cssBuilder.push(`\tgrid-template-rows: ${template};`);
-    }
-
-    if(columns.length > 0) {
-        let template = "1fr ";
-        for (let i = 0 ; i < columns.length; i++) {
-            template += `${columns[i].size}px 1fr `;
-        }
-
-        cssBuilder.push(`\tgrid-template-columns: ${template};`);
-    }
-    cssBuilder.push('}');
-
-    for (let row of rows) {
-        const track = row.track;
-        cssBuilder.push(`.split-grid-gutter-row-${track} { grid-row: ${track + 1}; }`);
-    }
-
-    for (let column of columns) {
-        const track = column.track;
-        cssBuilder.push(`.split-grid-gutter-column-${track} { grid-column: ${track + 1}; }`);
-    }
-
-    style.innerHTML = cssBuilder.join('\n');
+    style.innerHTML = css;
 }

@@ -11,24 +11,45 @@ public class SplitGridGutter : SplitGridComponentBase
     public SplitGrid SplitGrid { get; set; } = null!;
 
     [Parameter]
-    public int? MinContentSize { get; set; }
+    public decimal? MinSize { get; set; }
 
     [Parameter]
-    public int? MaxContentSize { get; set; }
+    public decimal? MaxSize { get; set; }
 
     [Parameter]
-    public int Size { get; set; } = 10;
+    public decimal Size { get; set; } = 10;
 
     [Parameter]
     public Direction Direction { get; set; }
 
+    [Parameter]
+    public bool Disabled { get; set; }
+
     protected override string Classes => ClassBuilder
         .Append("split-grid-gutter")
         .Append($"split-grid-gutter-{Direction.ToClassName()}")
-        .ConditionalAppend(() => _item is not null, $"split-grid-gutter-{Direction.ToClassName()}-{_item!.Track}")
+        .ConditionalAppend(() => _item is not null, $"split-grid-gutter-{Direction.ToClassName()}-{_item!.Number}")
+        .ConditionalAppend(() => Disabled, "disabled")
         .Build();
 
-    private GutterItem? _item;
+    private Track? _item;
+
+    public async Task SetSize(decimal size)
+    {
+        await SplitGrid.SetSize(Direction, SplitGridId, size);
+    }
+
+    public Task Disable()
+    {
+        Disabled = true;
+        return Task.CompletedTask;
+    }
+
+    public Task Enable()
+    {
+        Disabled = false;
+        return Task.CompletedTask;
+    }
 
     protected override void OnInitialized()
     {

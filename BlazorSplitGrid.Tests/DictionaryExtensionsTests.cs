@@ -1,5 +1,4 @@
 using BlazorSplitGrid.Extensions;
-using BlazorSplitGrid.Models;
 using FluentAssertions;
 using Xunit;
 
@@ -7,21 +6,6 @@ namespace BlazorSplitGrid.Tests;
 
 public class DictionaryExtensionsTests
 {
-    [Theory]
-    [InlineData(0, 1)]
-    [InlineData(1, 3)]
-    [InlineData(2, 5)]
-    [InlineData(10, 21)]
-    public void ShouldReturnTheNextTrackToTheNextOddNumber(int itemCount, int expectedNextTrack)
-    {
-        var dictionary = new Dictionary<string, GutterItem>();
-        for (var i = 0; i < itemCount; i++)
-            dictionary.Add($"{i}", new GutterItem("id", 0, 10));
-
-        var result = dictionary.NextTrack();
-        result.Should().Be(expectedNextTrack);
-    }
-
     [Fact]
     public void ShouldNotAddItemIfDictionaryIsEmpty()
     {

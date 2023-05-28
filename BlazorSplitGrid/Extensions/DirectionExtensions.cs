@@ -8,4 +8,9 @@ internal static class DirectionExtensions
     {
         return self.ToString().ToLower();
     }
+    
+    internal static string ToGridTemplate(this Direction self)
+    {
+        return self == Direction.Column ? "grid-template-columns" : "grid-template-rows";
+    }
 }

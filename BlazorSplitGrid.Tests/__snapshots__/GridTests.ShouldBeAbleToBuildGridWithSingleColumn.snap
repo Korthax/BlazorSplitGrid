@@ -1,0 +1,8 @@
+﻿.split-grid {
+	display: grid;
+	height: 100%;
+	grid-template-rows: 1fr 10px 1fr 10px 1fr;
+}
+
+.split-grid-gutter-row-1 { grid-row: 2; }
+.split-grid-gutter-row-3 { grid-row: 4; }
