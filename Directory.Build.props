@@ -1,11 +1,15 @@
 <Project>
     <PropertyGroup>
-        <PackageOutputPath>$(MSBuildThisFileDirectory)/.artifacts/$(Configuration)</PackageOutputPath>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PackageOutputPath>$(MSBuildThisFileDirectory)/.artifacts</PackageOutputPath>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>1.6.0</Version>
         <Authors>Stephen Phillips</Authors>
         <Copyright>Stephen Phillips</Copyright>
         <Description>
@@ -19,10 +23,15 @@
         <PackageTags>Blazor, split-grid</PackageTags>
         <README>$(MSBuildThisFileDirectory)/README.md</README>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" Visible="false" PackagePath="" />
         <None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" Visible="false" PackagePath="" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="GitVersion.MsBuild" Version="5.6.10*">
+            <PrivateAssets>All</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
 </Project>

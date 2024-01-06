@@ -4,26 +4,29 @@
 
 A basic Blazor component wrapper around [Split Grid](https://github.com/nathancahill/split).
 
-## Getting Started
+## Prerequisites
+* A system that can compile and run the .NET Framework
+* .NET SDK
+* A code editor, we recommend Jet Brains Rider, Visual Studio or VS Code
 
-### Quick Installation Guide
+## Installation Guide
 
 1. Install the Nuget Package
-   ```
+   ```powershell
    dotnet add package BlazorSplit
    ```
 2. Add namespace reference to your `_Imports.razor`
-   ```
+   ```csharp
    @using BlazorSplitGrid
    ```
-
-### Optional CSS
-
-You can add basic gutter styling by including the following link in your html head section
-
-```html
-<link href="_content/BlazorSplitGrid/BlazorSplitGrid.min.css" rel="stylesheet" />
-```
+3. Add the following to the end of your HTML body section, it's either `index.html` or `_Layout.cshtml/_Host.cshtml` depending on whether you're running WebAssembly or Server, it should be in the same location as the default blazor script.
+   ```html
+   <script src="_content/BlazorSplitGrid/splitGrid/split-grid.min.js"></script>
+   ```
+4. ***Optional*** In the same file but located in the HTML head section, you can add basic gutter styling by including the following css
+   ```html
+   <link href="_content/BlazorSplitGrid/BlazorSplitGrid.min.css" rel="stylesheet" />
+   ```
 
 ## Usage
 
@@ -42,7 +45,7 @@ Blazor Split Grid will automatically generate the track number and classes for y
 
 ### Example
 
-See the [example project](./BlazorSplitGrid.Example) for a more comprehensive example.
+See the [example project](./ExampleApplication) for a more comprehensive example.
 
 ## API Reference
 
