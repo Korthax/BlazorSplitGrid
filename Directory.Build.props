@@ -21,12 +21,12 @@
         <RepositoryUrl>https://github.com/Korthax/BlazorSplitGrid</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Blazor, split-grid</PackageTags>
-        <README>$(MSBuildThisFileDirectory)/README.md</README>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" Visible="false" PackagePath="" />
-        <None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" Visible="false" PackagePath="" />
+        <None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" Visible="false" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" Visible="false" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
