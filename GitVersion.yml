@@ -1,0 +1,16 @@
+next-version: 1.0.0
+mode: ContinuousDelivery
+increment: Inherit
+branches:
+  main:
+    regex: ^master$|^main$
+    mode: ContinuousDelivery
+    increment: Minor
+    tag: ''
+  feature:
+    regex: f(eatures)?[-/]
+    mode: ContinuousDeployment
+    increment: Minor
+    tag: alpha
+ignore:
+  sha: []

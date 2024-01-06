@@ -9,12 +9,27 @@ A basic Blazor component wrapper around [Split Grid](https://github.com/nathanca
 ### Quick Installation Guide
 
 1. Install the Nuget Package
-   ```
+   ```powershell
    dotnet add package BlazorSplit
    ```
 2. Add namespace reference to your `_Imports.razor`
-   ```
+   ```csharp
    @using BlazorSplitGrid
+   ```
+3. Add script reference
+   ```html
+   <script src="_content/BlazorSplitGrid/splitGrid/split-grid.min.js"></script>
+   ```
+4. Add the component
+   ```html
+    <SplitGrid>
+        <SplitGridContent></SplitGridContent>
+        <SplitGridColumn />
+        <SplitGridContent</SplitGridContent>
+        <SplitGridRow />
+        <SplitGridContent</SplitGridContent>
+        <SplitGridContent</SplitGridContent>
+    </SplitGrid>
    ```
 
 ### Optional CSS
