@@ -10,7 +10,7 @@ export function initSplitGrid(rows, columns, options, interopReference) {
 
     if(options.hasOnDrag) {
         options.onDrag = function(direction, track, gridTemplateStyle) {
-            interopReference.invokeMethod("OnDragFired", direction, track, gridTemplateStyle);
+            interopReference.invokeMethodAsync("OnDragFired", direction, track, gridTemplateStyle);
         }
     }
 
@@ -19,7 +19,7 @@ export function initSplitGrid(rows, columns, options, interopReference) {
             const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
             const element = document.querySelector(".split-grid");
             const gridTemplateStyle = element.style[templateName];
-            interopReference.invokeMethod("OnDragStartFired", direction, track, gridTemplateStyle);
+            interopReference.invokeMethodAsync("OnDragStartFired", direction, track, gridTemplateStyle);
         }
     }
 
@@ -28,7 +28,7 @@ export function initSplitGrid(rows, columns, options, interopReference) {
             const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
             const element = document.querySelector(".split-grid");
             const gridTemplateStyle = element.style[templateName];
-            interopReference.invokeMethod("OnDragEndFired", direction, track, gridTemplateStyle);
+            interopReference.invokeMethodAsync("OnDragEndFired", direction, track, gridTemplateStyle);
         }
     }
 
