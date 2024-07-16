@@ -85,3 +85,9 @@ You can specify the MinSize and MaxSize on the gutters which is automatically ad
 |-----------|:----:|:--------:|--------------------------------------------|
 | MinSize   | int  |    0     | The minimum size in pixels for this track. |
 | MaxSize   | int  | Infinity | The maximum size in pixels for this track. |
+
+## Contributing
+
+For more details check out our [contributing guide](./CONTRIBUTING.md). 
+
+When contributing please keep in mind the [Code of Conduct](./CODE_OF_CONDUCT.md).
