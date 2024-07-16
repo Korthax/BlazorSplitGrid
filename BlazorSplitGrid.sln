@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSplitGrid", "BlazorSplitGrid\BlazorSplitGrid.csproj", "{2707012C-EEB9-4E56-8201-C7F1F0887F70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleApplication", "ExampleApplication\ExampleApplication.csproj", "{A85143C9-5F27-4431-AD4D-4FCD3E442409}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleApplication.WebAssembly", "ExampleApplication.WebAssembly\ExampleApplication.WebAssembly.csproj", "{A85143C9-5F27-4431-AD4D-4FCD3E442409}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSplitGrid.Tests", "BlazorSplitGrid.Tests\BlazorSplitGrid.Tests.csproj", "{FD839C73-AD8D-4ED9-8485-C9E08EF15A1E}"
 EndProject

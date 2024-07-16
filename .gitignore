@@ -346,6 +346,7 @@ healthchecksdb
 
 # Local Nuget
 .artifacts/
+!.gitkeep
 
 # Snapshooter
 **/__snapshots__/__mismatch__/

@@ -22,15 +22,17 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>Blazor, split-grid</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>RELEASE_NOTES.md</PackageReleaseNotes>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)/LICENSE.md" Pack="true" Visible="false" PackagePath="\" />
         <None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" Visible="false" PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)/RELEASE_NOTES.md" Pack="true" Visible="false" PackagePath="\" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="GitVersion.MsBuild" Version="5.6.10*">
+        <PackageReference Include="GitVersion.MsBuild" Version="5.12.0">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>
     </ItemGroup>

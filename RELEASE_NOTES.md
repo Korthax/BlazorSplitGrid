@@ -1,4 +1,9 @@
-# Changelog
+# Release Notes
+
+## 1.8.0
+- Updated JS interoperability to use async methods
+- Added a basic contributing and code of conduct files
+- Updated nuget dependencies to latest versions
 
 ## 1.7.0
 - Added support for net8.0
