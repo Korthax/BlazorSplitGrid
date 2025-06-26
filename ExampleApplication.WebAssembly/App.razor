@@ -1,4 +1,5 @@
-﻿@using DragEventArgs = BlazorSplitGrid.Models.DragEventArgs
+﻿@using System.Globalization
+@using DragEventArgs = BlazorSplitGrid.Models.DragEventArgs
 @using BlazorSplitGrid.Models
 
 <div style="width:100%; padding-bottom: 10px">
@@ -16,7 +17,7 @@
 <div style="height: 1000px; width:100%; padding-bottom: 10px">
     <SplitGrid @ref="SplitGrid" SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop"
                OnDragStart="@OnDragStart" OnColumnsResized="@(args => OnResized(Direction.Column, args))"
-               OnRowsResized="@(args => OnResized(Direction.Row, args))">
+               OnRowsResized="@(args => OnResized(Direction.Row, args))" ResizeDebounceTimeMs="500">
         <SplitGridContent Style="background-color: red"></SplitGridContent>
         <SplitGridColumn @ref="ColumnGutter"/>
         <SplitGridContent Style="background-color: green"></SplitGridContent>
@@ -150,5 +151,5 @@
             await SplitGrid.SetSizes(Direction.Column, _columnSizes);
     }
 
-    private void OnResized(Direction direction, SizeEventArgs args) => Output.Push($"[{DateTime.Now.ToLongTimeString()}] {direction} resized: {args.SizeString}; {string.Join(", ", args.Sizes)}");
+    private void OnResized(Direction direction, SizeEventArgs args) => Output.Push($"[{DateTime.Now.ToLongTimeString()}] {direction} resized: {args.SizeString}; {string.Join(", ", from sz in args.Sizes select sz.ToString(CultureInfo.InvariantCulture))}");
 }

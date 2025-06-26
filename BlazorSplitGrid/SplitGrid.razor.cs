@@ -75,6 +75,15 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
     [Parameter]
     public string? RowCursor { get; set; }
 
+    [Parameter]
+    public TimeSpan ResizeDebounceTime { get; set; } = TimeSpan.FromSeconds(1);
+
+    [Parameter]
+    public double ResizeDebounceTimeMs {
+        get => ResizeDebounceTime.TotalMilliseconds;
+        set => ResizeDebounceTime = TimeSpan.FromMilliseconds(value);
+    }
+
     public ElementReference Element { get; set; }
 
     protected override string Classes => ClassBuilder
@@ -124,7 +133,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
     }
     private async Task ResizeDebounced(CancellationToken cancellationToken)
     {
-        await Task.Delay(1000, cancellationToken);
+        await Task.Delay(ResizeDebounceTime, cancellationToken);
         _widthStr = _heightStr = null;
         await ReportResize();
     }
