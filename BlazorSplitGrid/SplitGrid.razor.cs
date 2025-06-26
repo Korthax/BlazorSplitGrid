@@ -3,10 +3,11 @@ using BlazorSplitGrid.Extensions;
 using BlazorSplitGrid.Interop;
 using BlazorSplitGrid.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace BlazorSplitGrid;
 
-public partial class SplitGrid : SplitGridComponentBase
+public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
 {
     [Parameter]
     public EventCallback<DragEventArgs> OnDrag { get; set; }
@@ -17,7 +18,13 @@ public partial class SplitGrid : SplitGridComponentBase
     [Parameter]
     public EventCallback<DragEventArgs> OnDragStop { get; set; }
 
-    [Parameter] 
+    [Parameter]
+    public EventCallback<SizeEventArgs> OnColumnsResized { get; set; }
+
+    [Parameter]
+    public EventCallback<SizeEventArgs> OnRowsResized { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
@@ -26,43 +33,43 @@ public partial class SplitGrid : SplitGridComponentBase
     [Parameter]
     public int MaxSize { get; set; } = int.MaxValue;
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnMinSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnMaxSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowMinSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowMaxSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? SnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnSnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowSnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? DragInterval { get; set; }
-    
-    [Parameter] 
+
+    [Parameter]
     public int? ColumnDragInterval { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowDragInterval { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? Cursor { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? ColumnCursor { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? RowCursor { get; set; }
 
     public ElementReference Element { get; set; }
@@ -74,6 +81,9 @@ public partial class SplitGrid : SplitGridComponentBase
     private Grid Grid => _grid ??= Grid.New(this);
     private SplitGridInterop? _splitGrid;
     private Grid? _grid;
+    private double _width = double.NaN, _height = double.NaN;
+    private IJSObjectReference? _observer;
+    private bool _initialised;
 
     protected override Task OnInitializedAsync()
     {
@@ -86,7 +96,54 @@ public partial class SplitGrid : SplitGridComponentBase
         await base.OnAfterRenderAsync(firstRender);
 
         if (firstRender)
+        {
             await Initialise();
+            _initialised = true;
+            await SetupResizing();
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        await SetupResizing();
+    }
+
+    private async Task SetupResizing()
+    {
+        if (!_initialised)
+            return;
+
+        if (!(OnColumnsResized.HasDelegate || OnRowsResized.HasDelegate))
+        {
+            await Unobserve();
+            return;
+        }
+        if (_observer is null)
+        {
+            _observer = await _splitGrid!.CreateResizeObserver(nameof(OnResized), DotNetObjectReference.Create(this));
+            await _observer.InvokeVoidAsync("observe", Element);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnResized(double w, double h)
+    {
+        await Task.Yield();
+        _width = w;
+        _height = h;
+    }
+
+    private async ValueTask Unobserve()
+    {
+        if (_observer is not {} observer)
+            return;
+
+        _observer = null;
+
+        await observer.InvokeVoidAsync("unobserve", Element);
+        await observer.InvokeVoidAsync("disconnect");
+        await observer.DisposeAsync();
     }
 
     public async Task Initialise()
@@ -96,8 +153,27 @@ public partial class SplitGrid : SplitGridComponentBase
 
         await Grid.Initialise(_splitGrid);
         _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
-        _splitGrid.OnDragStart +=  async (_, args) => await OnSizesChanged(args, OnDragStart);
-        _splitGrid.OnDragStop += async (_, args) => await OnSizesChanged(args, OnDragStop);
+        _splitGrid.OnDragStart += async (_, args) => await OnSizesChanged(args, OnDragStart);
+        _splitGrid.OnDragStop += async (_, args) => {
+            await OnSizesChanged(args, OnDragStop);
+            await ReportResize();
+        };
+    }
+    private async Task ReportResize()
+    {
+        if (OnColumnsResized.HasDelegate)
+        {
+            await CallbackSizes(OnColumnsResized, await GetSizes(Direction.Column));
+        }
+        if (OnRowsResized.HasDelegate)
+        {
+            await CallbackSizes(OnRowsResized, await GetSizes(Direction.Row));
+        }
+    }
+    
+    private async Task CallbackSizes(EventCallback<SizeEventArgs> eventCallback, string sizeStr)
+    {
+        await eventCallback.InvokeAsync(new(sizeStr, []));
     }
 
     public async Task<Track> AppendColumnGutter(string selector, string size)
@@ -283,5 +359,18 @@ public partial class SplitGrid : SplitGridComponentBase
             Grid.Update(eventArgs.Direction, eventArgs.GridTemplateStyle);
 
         await callback.InvokeAsync(eventArgs);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        await Unobserve();
+        if (_splitGrid is {} splitGrid)
+            await splitGrid.DisposeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        GC.SuppressFinalize(this);
     }
 }

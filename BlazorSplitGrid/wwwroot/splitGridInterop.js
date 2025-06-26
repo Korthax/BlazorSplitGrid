@@ -111,3 +111,13 @@ function BuildStyles(css) {
     
     style.innerHTML = css;
 }
+
+export function createResizeObserver(methodName, dotNetRef) {
+    return new ResizeObserver(entries => {
+        entries.forEach(entry => {
+            const width = entry.contentRect.width;
+            const height = entry.contentRect.height;
+            dotNetRef.invokeMethodAsync(methodName, width, height).catch(err => console.error(err));
+        });
+    });
+}
