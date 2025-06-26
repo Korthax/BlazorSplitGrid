@@ -5,23 +5,28 @@
     <input @onclick="Reset" type="button" value="Reset" style="display: inline-block"/>
     <input @onclick="GetSizes" type="button" value="Get Sizes" style="display: inline-block"/>
     <input @onclick="SetSizes" type="button" value="Load Sizes" style="display: inline-block"/>
-    <input @onclick="ToggleColumn" type="button" value="@(ColumnHidden ? "Show Column" : "Hide Column")" style="display: inline-block"/>
-    <input @onclick="ToggleRow" type="button" value="@(RowHidden ? "Show Row" : "Hide Row")" style="display: inline-block"/>
-    <input @onclick="FreezeGutter" type="button" value="@(ColumnDisabled ? "Enable Column 1" : "Disable Column 1")" style="display: inline-block"/>
+    <input @onclick="ToggleColumn" type="button" value="@(ColumnHidden ? "Show Column" : "Hide Column")"
+           style="display: inline-block"/>
+    <input @onclick="ToggleRow" type="button" value="@(RowHidden ? "Show Row" : "Hide Row")"
+           style="display: inline-block"/>
+    <input @onclick="FreezeGutter" type="button" value="@(ColumnDisabled ? "Enable Column 1" : "Disable Column 1")"
+           style="display: inline-block"/>
 </div>
 
 <div style="height: 1000px; width:100%; padding-bottom: 10px">
-    <SplitGrid @ref="SplitGrid" SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop" OnDragStart="@OnDragStart">
+    <SplitGrid @ref="SplitGrid" SnapOffset="0" DragInterval="1" MaxSize="850" OnDragStop="@OnDragStop"
+               OnDragStart="@OnDragStart" OnColumnsResized="@(args => OnResized(Direction.Column, args))"
+               OnRowsResized="@(args => OnResized(Direction.Row, args))">
         <SplitGridContent Style="background-color: red"></SplitGridContent>
-        <SplitGridColumn @ref="ColumnGutter" />
+        <SplitGridColumn @ref="ColumnGutter"/>
         <SplitGridContent Style="background-color: green"></SplitGridContent>
         <SplitGridColumn/>
         <SplitGridContent Style="background-color: blue"></SplitGridContent>
-        <SplitGridRow />
+        <SplitGridRow/>
         <SplitGridContent Style="background-color: magenta"></SplitGridContent>
         <SplitGridContent Style="background-color: yellow"></SplitGridContent>
         <SplitGridContent Style="background-color: cyan"></SplitGridContent>
-        <SplitGridRow />
+        <SplitGridRow/>
         <SplitGridContent Style="background-color: springgreen"></SplitGridContent>
         <SplitGridContent Style="background-color: purple"></SplitGridContent>
         <SplitGridContent Style="background-color: orange"></SplitGridContent>
@@ -114,7 +119,7 @@
     {
         if (ColumnGutter is null)
             return;
-        
+
         if (ColumnGutter.Disabled)
             await ColumnGutter.Enable();
         else
@@ -144,4 +149,6 @@
         if (!string.IsNullOrWhiteSpace(_columnSizes))
             await SplitGrid.SetSizes(Direction.Column, _columnSizes);
     }
+
+    private void OnResized(Direction direction, SizeEventArgs args) => Output.Push($"[{DateTime.Now.ToLongTimeString()}] {direction} resized: {args.SizeString}; {string.Join(", ", args.Sizes)}");
 }
