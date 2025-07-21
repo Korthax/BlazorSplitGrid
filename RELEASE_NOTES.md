@@ -1,5 +1,8 @@
 # Release Notes
 
+## [1.9.1] 
+- Removed version reference `GitVersion` from `directory.build.props`
+
 ## [1.9.0]
 - Added support for size events fired when the size of the grid itself or of rows / columns changes
 - Added net9.0 support and dropped unsupported net6/7 frameworks 
