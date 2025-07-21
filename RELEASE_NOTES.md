@@ -1,5 +1,8 @@
 # Release Notes
 
+## 1.9.0
+- Added support for size events fired when the size of the grid itself or of rows / columns changes
+
 ## 1.8.0
 - Updated JS interoperability to use async methods
 - Added a basic contributing and code of conduct files

@@ -1,10 +1,12 @@
 [![Version](https://img.shields.io/nuget/v/BlazorSplitGrid?style=plastic)](https://www.nuget.org/packages/BlazorSplitGrid/)
 [![Nuget downloads](https://img.shields.io/nuget/dt/BlazorSplitGrid?label=nuget%20downloads&logo=nuget&style=plastic)](https://www.nuget.org/packages/BlazorSplitGrid/)
+
 # Blazor Split Grid
 
 A basic Blazor component wrapper around [Split Grid](https://github.com/nathancahill/split).
 
 ## Prerequisites
+
 * A system that can compile and run the .NET Framework
 * .NET SDK
 * A code editor, we recommend Jet Brains Rider, Visual Studio or VS Code
@@ -19,25 +21,30 @@ A basic Blazor component wrapper around [Split Grid](https://github.com/nathanca
    ```csharp
    @using BlazorSplitGrid
    ```
-3. Add the following to the end of your HTML body section, it's either `index.html` or `_Layout.cshtml/_Host.cshtml` depending on whether you're running WebAssembly or Server, it should be in the same location as the default blazor script.
+3. Add the following to the end of your HTML body section, it's either `index.html` or `_Layout.cshtml/_Host.cshtml`
+   depending on whether you're running WebAssembly or Server, it should be in the same location as the default blazor
+   script.
    ```html
    <script src="_content/BlazorSplitGrid/splitGrid/split-grid.min.js"></script>
    ```
-4. ***Optional*** In the same file but located in the HTML head section, you can add basic gutter styling by including the following css
+4. ***Optional*** In the same file but located in the HTML head section, you can add basic gutter styling by including
+   the following css
    ```html
    <link href="_content/BlazorSplitGrid/BlazorSplitGrid.min.css" rel="stylesheet" />
    ```
 
 ## Usage
 
-Blazor Split Grid will automatically generate the track number and classes for your gutters so all you need to specify is whether the gutter is a row or column.
+Blazor Split Grid will automatically generate the track number and classes for your gutters so all you need to specify
+is whether the gutter is a row or column.
 
 ```html
+
 <SplitGrid SnapOffset="0" DragInterval="1" MaxSize="850">
     <SplitGridContent></SplitGridContent>
-    <SplitGridColumn />
+    <SplitGridColumn/>
     <SplitGridContent></SplitGridContent>
-    <SplitGridRow />
+    <SplitGridRow/>
     <SplitGridContent></SplitGridContent>
     <SplitGridContent></SplitGridContent>
 </SplitGrid>
@@ -50,7 +57,10 @@ See the [example project](./ExampleApplication) for a more comprehensive example
 ## API Reference
 
 ### SplitGrid
-You are able to specify all the [Split Grid](https://github.com/nathancahill/split/tree/master/packages/split-grid#options) options on the top level `SplitGrid` component except the row and column gutters.
+
+You are able to specify all
+the [Split Grid](https://github.com/nathancahill/split/tree/master/packages/split-grid#options) options on the top level
+`SplitGrid` component except the row and column gutters.
 
 | Attribute          |         Type         |            Default            | Description                                                                                                                                                                                                                                        |
 |--------------------|:--------------------:|:-----------------------------:|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -76,10 +86,14 @@ You are able to specify all the [Split Grid](https://github.com/nathancahill/spl
 | OnDrag             |    DragEventArgs     |               -               | Called continuously on drag. For process intensive code, add a debounce function to rate limit this callback. gridTemplateStyle is the computed CSS value for grid-template-column or grid-template-row, depending on direction.                   |
 | OnDragStart        |    DragEventArgs     |               -               | Called on drag start.                                                                                                                                                                                                                              |
 | OnDragEnd          |    DragEventArgs     |               -               | Called on drag end.                                                                                                                                                                                                                                |
+| OnColumnsResized   |    SizeEventArgs     |               -               | Called when the control or any of the columns has been resized (on drag stop). The event contains the new sizes of the columns in pixels as well as the raw size string returned by `GetSizes`                                                     |
+| OnRowsResized      |    SizeEventArgs     |               -               | Called when the control or any of the rows has been resized (on drag stop). The event contains the new sizes of the rows in pixels as well as the raw size string returned by `GetSizes`                                                           |
+| ResizeDebounceTime |       TimeSpan       |              1s               | The time to wait before `OnColumnsResized` and `OnRowsResized` are called when the control itself resizes. This is here to avoid performance issues when resizing multiple columns/rows at once. The default is 1 second.                          |
 
 ### SplitGridRow / SplitGridColumn
 
-You can specify the MinSize and MaxSize on the gutters which is automatically added to the ColumnMinSizes/RowMinSizes and ColumnMaxSizes/RowMaxSizes properties.
+You can specify the MinSize and MaxSize on the gutters which is automatically added to the ColumnMinSizes/RowMinSizes
+and ColumnMaxSizes/RowMaxSizes properties.
 
 | Attribute | Type | Default  | Description                                |
 |-----------|:----:|:--------:|--------------------------------------------|
@@ -88,6 +102,6 @@ You can specify the MinSize and MaxSize on the gutters which is automatically ad
 
 ## Contributing
 
-For more details check out our [contributing guide](./CONTRIBUTING.md). 
+For more details check out our [contributing guide](./CONTRIBUTING.md).
 
 When contributing please keep in mind the [Code of Conduct](./CODE_OF_CONDUCT.md).

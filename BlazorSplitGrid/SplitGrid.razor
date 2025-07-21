@@ -1,5 +1,7 @@
-﻿@inherits SplitGridComponentBase
+﻿@using Microsoft.Extensions.Logging
+@inherits SplitGridComponentBase
 @inject IJSRuntime JsRuntime
+@inject ILogger<SplitGrid> Logger
 
 <div @ref="Element" class="@Classes" style="@Styles" id="@Id">
     <CascadingValue Value="this">

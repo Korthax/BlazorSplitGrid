@@ -1,12 +1,16 @@
+using System.Globalization;
+using System.Text.RegularExpressions;
 using BlazorSplitGrid.Elements;
 using BlazorSplitGrid.Extensions;
 using BlazorSplitGrid.Interop;
 using BlazorSplitGrid.Models;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using Microsoft.JSInterop;
 
 namespace BlazorSplitGrid;
 
-public partial class SplitGrid : SplitGridComponentBase
+public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
 {
     [Parameter]
     public EventCallback<DragEventArgs> OnDrag { get; set; }
@@ -17,7 +21,13 @@ public partial class SplitGrid : SplitGridComponentBase
     [Parameter]
     public EventCallback<DragEventArgs> OnDragStop { get; set; }
 
-    [Parameter] 
+    [Parameter]
+    public EventCallback<SizeEventArgs> OnColumnsResized { get; set; }
+
+    [Parameter]
+    public EventCallback<SizeEventArgs> OnRowsResized { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
@@ -26,44 +36,47 @@ public partial class SplitGrid : SplitGridComponentBase
     [Parameter]
     public int MaxSize { get; set; } = int.MaxValue;
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnMinSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnMaxSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowMinSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowMaxSize { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? SnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? ColumnSnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowSnapOffset { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? DragInterval { get; set; }
-    
-    [Parameter] 
+
+    [Parameter]
     public int? ColumnDragInterval { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public int? RowDragInterval { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? Cursor { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? ColumnCursor { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public string? RowCursor { get; set; }
+
+    [Parameter]
+    public TimeSpan ResizeDebounceTime { get; set; } = TimeSpan.FromSeconds(1);
 
     public ElementReference Element { get; set; }
 
@@ -71,9 +84,16 @@ public partial class SplitGrid : SplitGridComponentBase
         .Append("split-grid")
         .Build();
 
+    private static readonly Regex PxFrRegex = new(@"^(.+)(px|fr)$", RegexOptions.Compiled);
+
     private Grid Grid => _grid ??= Grid.New(this);
     private SplitGridInterop? _splitGrid;
     private Grid? _grid;
+    private double _width = double.NaN, _height = double.NaN;
+    private IJSObjectReference? _observer;
+    private CancellationTokenSource? _debounceSource;
+    private Task? _resizeTask;
+    private string? _widthStr, _heightStr;
 
     protected override Task OnInitializedAsync()
     {
@@ -89,6 +109,29 @@ public partial class SplitGrid : SplitGridComponentBase
             await Initialise();
     }
 
+    [JSInvokable]
+    public async Task OnResized(double w, double h)
+    {
+        await Task.Yield();
+        _width = w;
+        _height = h;
+        try
+        {
+            _debounceSource?.Cancel();
+        } catch(ObjectDisposedException) {} finally
+        {
+            _debounceSource?.Dispose();
+        }
+        _debounceSource = new CancellationTokenSource();
+        _resizeTask = Task.Run(async () => await ResizeDebounced(_debounceSource.Token), _debounceSource.Token);
+    }
+    private async Task ResizeDebounced(CancellationToken cancellationToken)
+    {
+        await Task.Delay(ResizeDebounceTime, cancellationToken);
+        _widthStr = _heightStr = null;
+        await ReportResize();
+    }
+
     public async Task Initialise()
     {
         if (_splitGrid is null)
@@ -96,8 +139,74 @@ public partial class SplitGrid : SplitGridComponentBase
 
         await Grid.Initialise(_splitGrid);
         _splitGrid.OnDrag += (_, args) => OnDrag.InvokeAsync(args);
-        _splitGrid.OnDragStart +=  async (_, args) => await OnSizesChanged(args, OnDragStart);
-        _splitGrid.OnDragStop += async (_, args) => await OnSizesChanged(args, OnDragStop);
+        _splitGrid.OnDragStart += async (_, args) => await OnSizesChanged(args, OnDragStart);
+        _splitGrid.OnDragStop += async (_, args) => {
+            await OnSizesChanged(args, OnDragStop);
+            await ReportResize();
+        };
+        _observer = await _splitGrid.CreateResizeObserver(nameof(OnResized), DotNetObjectReference.Create(this));
+        await _observer.InvokeVoidAsync("observe", Element);
+    }
+
+    private async Task ReportResize()
+    {
+        if (OnColumnsResized.HasDelegate && (!double.IsNaN(_width)))
+        {
+            var sizeStr = await GetSizes(Direction.Column);
+            if (!Equals(_widthStr, sizeStr))
+            {
+                _widthStr = sizeStr;
+                await CallbackSizes(OnColumnsResized, sizeStr, _width);
+            }
+        }
+        else
+        {
+            _widthStr = null;
+            _width = double.NaN;
+        }
+        if (OnRowsResized.HasDelegate && !double.IsNaN(_height))
+        {
+            var sizeStr = await GetSizes(Direction.Row);
+            if (!Equals(_heightStr, sizeStr))
+            {
+                _heightStr = sizeStr;
+                await CallbackSizes(OnRowsResized, sizeStr, _height);
+            }
+        }
+        else
+        {
+            _heightStr = null;
+            _height = double.NaN;
+        }
+    }
+
+    private static async Task CallbackSizes(EventCallback<SizeEventArgs> eventCallback, string sizeStr, double size)
+    {
+        var sizeStrs = sizeStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var pxSum = 0.0;
+        var frSum = 0.0;
+        var frSizes = new List<double>();
+        foreach (var aSize in sizeStrs)
+        {
+            var m = PxFrRegex.Match(aSize);
+            if (!m.Success)
+                continue;
+
+            var value = double.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+            switch(m.Groups[2].Value)
+            {
+                case "px":
+                    pxSum += value;
+                    break;
+                case "fr":
+                    frSum += value;
+                    frSizes.Add(value);
+                    break;
+            }
+        }
+        var realSize = size - pxSum;
+        var sizes = (from aSize in frSizes select aSize / frSum * realSize).ToList().AsReadOnly();
+        await eventCallback.InvokeAsync(new SizeEventArgs(sizeStr, sizes));
     }
 
     public async Task<Track> AppendColumnGutter(string selector, string size)
@@ -283,5 +392,38 @@ public partial class SplitGrid : SplitGridComponentBase
             Grid.Update(eventArgs.Direction, eventArgs.GridTemplateStyle);
 
         await callback.InvokeAsync(eventArgs);
+    }
+
+    protected virtual async ValueTask DisposeAsyncCore()
+    {
+        try
+        {
+            _debounceSource?.Cancel();
+        } catch(ObjectDisposedException) {}
+        if (_resizeTask is {} t)
+        {
+            try
+            {
+                await t;
+            } catch(OperationCanceledException) {} catch(Exception e)
+            {
+                Logger.LogWarning(e, "{msg}", e.Message);
+            }
+        }
+        _debounceSource?.Dispose();
+        if (_observer is {} observer)
+        {
+            await observer.InvokeVoidAsync("unobserve", Element);
+            await observer.InvokeVoidAsync("disconnect");
+            await observer.DisposeAsync();
+        }
+        if (_splitGrid is {} splitGrid)
+            await splitGrid.DisposeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DisposeAsyncCore();
+        GC.SuppressFinalize(this);
     }
 }
