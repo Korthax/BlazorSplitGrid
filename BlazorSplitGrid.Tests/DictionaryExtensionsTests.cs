@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BlazorSplitGrid.Extensions;
-using FluentAssertions;
 using Xunit;
 
 namespace BlazorSplitGrid.Tests;

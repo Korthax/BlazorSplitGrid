@@ -6,11 +6,11 @@ branches:
     regex: ^master$|^main$
     mode: ContinuousDelivery
     increment: Minor
-    tag: ''
+    label: ''
   feature:
     regex: f(eatures)?[-/]
     mode: ContinuousDeployment
     increment: Minor
-    tag: alpha
+    label: alpha
 ignore:
   sha: []

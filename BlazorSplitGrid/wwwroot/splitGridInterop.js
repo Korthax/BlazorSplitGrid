@@ -8,13 +8,13 @@ export function initSplitGrid(rows, columns, options, interopReference) {
     BuildStylesheetLink();
     BuildStyles(options.css);
 
-    if(options.hasOnDrag) {
+    if (options.hasOnDrag) {
         options.onDrag = function(direction, track, gridTemplateStyle) {
             interopReference.invokeMethodAsync("OnDragFired", direction, track, gridTemplateStyle);
         }
     }
 
-    if(options.hasOnDragStart) {
+    if (options.hasOnDragStart) {
         options.onDragStart = function (direction, track) {
             const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
             const element = document.querySelector(".split-grid");
@@ -23,7 +23,7 @@ export function initSplitGrid(rows, columns, options, interopReference) {
         }
     }
 
-    if(options.hasOnDragStop) {
+    if (options.hasOnDragStop) {
         options.onDragEnd = function (direction, track) {
             const templateName = direction === "column" ? "grid-template-columns" : "grid-template-rows";
             const element = document.querySelector(".split-grid");
@@ -108,7 +108,7 @@ function BuildStyles(css) {
         style.id = splitGridStyleId;
         document.head.appendChild(style);
     }
-    
+
     style.innerHTML = css;
 }
 
