@@ -1,8 +1,8 @@
+using AwesomeAssertions;
 using BlazorSplitGrid.Elements;
 using BlazorSplitGrid.Interop;
 using BlazorSplitGrid.Models;
-using FluentAssertions;
-using Moq;
+using FakeItEasy;
 using Snapshooter.Xunit;
 using Xunit;
 
@@ -10,17 +10,16 @@ namespace BlazorSplitGrid.Tests;
 
 public class GridTests
 {
-    private readonly Mock<ISplitGridInterop> _splitGridInterop;
+    private readonly ISplitGridInterop _splitGridInterop;
     private IEnumerable<Track> _columnTracks = null!;
     private IEnumerable<Track> _rowTracks = null!;
     private SplitGridOptions _options = null!;
 
     public GridTests()
     {
-        _splitGridInterop = new Mock<ISplitGridInterop>();
-        _splitGridInterop
-            .Setup(x => x.Initialise(It.IsAny<IEnumerable<Track>>(), It.IsAny<IEnumerable<Track>>(), It.IsAny<SplitGridOptions>()))
-            .Callback((IEnumerable<Track> rowTracks, IEnumerable<Track> columnTracks, SplitGridOptions options) =>
+        _splitGridInterop = A.Fake<ISplitGridInterop>();
+        A.CallTo(() => _splitGridInterop.Initialise(A<IEnumerable<Track>>.Ignored, A<IEnumerable<Track>>.Ignored, A<SplitGridOptions>.Ignored))
+            .Invokes((IEnumerable<Track> rowTracks, IEnumerable<Track> columnTracks, SplitGridOptions options) =>
             {
                 _rowTracks = rowTracks;
                 _columnTracks = columnTracks;
@@ -28,7 +27,7 @@ public class GridTests
             })
             .Returns(Task.CompletedTask);
     }
-    
+
     [Fact]
     public async Task ShouldBeAbleToBuildGrid()
     {
@@ -46,11 +45,11 @@ public class GridTests
         grid.AddContent(new SplitGridContent());
         grid.AddContent(new SplitGridContent());
         grid.AddContent(new SplitGridContent());
-        
-        await grid.Initialise(_splitGridInterop.Object);
-        _options.Css.Should().MatchSnapshot();
+
+        await grid.Initialise(_splitGridInterop);
+        Snapshot.Match(_options.Css);
     }
-    
+
     [Fact]
     public async Task ShouldBeAbleToBuildGridWithSingleRow()
     {
@@ -61,8 +60,8 @@ public class GridTests
         grid.AddColumnGutter(new SplitGridColumn());
         grid.AddContent(new SplitGridContent());
 
-        await grid.Initialise(_splitGridInterop.Object);
-        _options.Css.Should().MatchSnapshot();
+        await grid.Initialise(_splitGridInterop);
+        Snapshot.Match(_options.Css);
     }
 
     [Fact]
@@ -75,8 +74,8 @@ public class GridTests
         grid.AddRowGutter(new SplitGridRow());
         grid.AddContent(new SplitGridContent());
 
-        await grid.Initialise(_splitGridInterop.Object);
-        _options.Css.Should().MatchSnapshot();
+        await grid.Initialise(_splitGridInterop);
+        Snapshot.Match(_options.Css);
     }
 
     [Fact]

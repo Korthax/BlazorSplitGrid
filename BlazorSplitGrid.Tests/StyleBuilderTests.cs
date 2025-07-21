@@ -1,5 +1,5 @@
+using AwesomeAssertions;
 using BlazorSplitGrid.Elements;
-using FluentAssertions;
 using Xunit;
 
 namespace BlazorSplitGrid.Tests;
@@ -26,7 +26,7 @@ public class StyleBuilderTests
         var result = attributeBuilder.Build();
         result.Should().Be("three; four;");
     }
-    
+
     [Fact]
     public void ShouldHandleInitialValue()
     {

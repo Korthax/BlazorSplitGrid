@@ -150,7 +150,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
 
     private async Task ReportResize()
     {
-        if (OnColumnsResized.HasDelegate && (!double.IsNaN(_width)))
+        if (OnColumnsResized.HasDelegate && !double.IsNaN(_width))
         {
             var sizeStr = await GetSizes(Direction.Column);
             if (!Equals(_widthStr, sizeStr))
@@ -164,6 +164,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
             _widthStr = null;
             _width = double.NaN;
         }
+
         if (OnRowsResized.HasDelegate && !double.IsNaN(_height))
         {
             var sizeStr = await GetSizes(Direction.Row);
@@ -204,6 +205,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
                     break;
             }
         }
+
         var realSize = size - pxSum;
         var sizes = (from aSize in frSizes select aSize / frSum * realSize).ToList().AsReadOnly();
         await eventCallback.InvokeAsync(new SizeEventArgs(sizeStr, sizes));
@@ -400,6 +402,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
         {
             _debounceSource?.Cancel();
         } catch(ObjectDisposedException) {}
+
         if (_resizeTask is {} t)
         {
             try
@@ -407,9 +410,10 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
                 await t;
             } catch(OperationCanceledException) {} catch(Exception e)
             {
-                Logger.LogWarning(e, "{msg}", e.Message);
+                Logger.LogWarning(e, "{Msg}", e.Message);
             }
         }
+
         _debounceSource?.Dispose();
         if (_observer is {} observer)
         {
@@ -417,6 +421,7 @@ public partial class SplitGrid : SplitGridComponentBase, IAsyncDisposable
             await observer.InvokeVoidAsync("disconnect");
             await observer.DisposeAsync();
         }
+
         if (_splitGrid is {} splitGrid)
             await splitGrid.DisposeAsync();
     }

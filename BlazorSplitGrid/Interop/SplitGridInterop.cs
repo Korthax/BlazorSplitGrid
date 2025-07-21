@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using BlazorSplitGrid.Models;
 using Microsoft.JSInterop;
 
@@ -26,7 +27,7 @@ internal class SplitGridInterop : IAsyncDisposable, ISplitGridInterop
         _gridInstance = await module.InvokeAsync<IJSObjectReference>("initSplitGrid", rowGutters, columnGutters, options.ToInteroperable(), interopRef);
     }
 
-    public async Task<IJSObjectReference> CreateResizeObserver<T>(string dotnetMethodName, DotNetObjectReference<T> interopRef) where T : class =>
+    public async Task<IJSObjectReference> CreateResizeObserver<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T>(string dotnetMethodName, DotNetObjectReference<T> interopRef) where T : class =>
         await (await _moduleTask.Value).InvokeAsync<IJSObjectReference>("createResizeObserver", dotnetMethodName, interopRef);
 
     public async ValueTask DisposeAsync()
